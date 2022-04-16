@@ -1,0 +1,272 @@
+
+.gamePage{
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 90vh;
+}
+
+.board{
+  background-image: url("Images/chessBoardBlue.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-height: 32rem;
+  max-height: 40rem;
+  min-width: 32rem;
+  max-width: 40rem;
+}
+
+.menu{
+  display: flex;
+  flex-direction: column;
+  width: 35%;
+  height: 90%;
+  background: hsl(0, 5%, 90%);
+}
+
+.piece{
+  background-size: 90%;
+  background-repeat: no-repeat;
+  cursor: grab;
+  width: 12.5%;
+  height: 12.5%;
+  left: 0.5%;
+  overflow: hidden;
+  position: absolute;
+  top: 1%;
+  touch-action: none;
+  will-change: transform;
+}
+
+.wk{
+  background-image: url("Images/wk.png");
+}
+.bk{
+  background-image: url("Images/bk.png");
+}
+.wp{
+  background-image: url("Images/wp.png");
+}
+.bp{
+  background-image: url("Images/bp.png");
+}
+.wr{
+  background-image: url("Images/wr.png");
+}
+.br{
+  background-image: url("Images/br.png");
+}
+.wb{
+  background-image: url("Images/wb.png");
+}
+.bb{
+  background-image: url("Images/bb.png");
+}
+.wh{
+  background-image: url("Images/wh.png");
+}
+.bh{
+  background-image: url("Images/bh.png");
+}
+.wq{
+  background-image: url("Images/wq.png");
+}
+.bq{
+  background-image: url("Images/bq.png");
+}
+
+.square00{ 
+  transform: translate(0%, 0%); 
+ } 
+ .square01{ 
+  transform: translate(100%, 0%); 
+ } 
+ .square02{ 
+  transform: translate(200%, 0%); 
+ } 
+ .square03{ 
+  transform: translate(300%, 0%); 
+ } 
+ .square04{ 
+  transform: translate(400%, 0%); 
+ } 
+ .square05{ 
+  transform: translate(500%, 0%); 
+ } 
+ .square06{ 
+  transform: translate(600%, 0%); 
+ } 
+ .square07{ 
+  transform: translate(700%, 0%); 
+ } 
+ .square10{ 
+  transform: translate(0%, 100%); 
+ } 
+ .square11{ 
+  transform: translate(100%, 100%); 
+ } 
+ .square12{ 
+  transform: translate(200%, 100%); 
+ } 
+ .square13{ 
+  transform: translate(300%, 100%); 
+ } 
+ .square14{ 
+  transform: translate(400%, 100%); 
+ } 
+ .square15{ 
+  transform: translate(500%, 100%); 
+ } 
+ .square16{ 
+  transform: translate(600%, 100%); 
+ } 
+ .square17{ 
+  transform: translate(700%, 100%); 
+ } 
+ .square20{ 
+  transform: translate(0%, 200%); 
+ } 
+ .square21{ 
+  transform: translate(100%, 200%); 
+ } 
+ .square22{ 
+  transform: translate(200%, 200%); 
+ } 
+ .square23{ 
+  transform: translate(300%, 200%); 
+ } 
+ .square24{ 
+  transform: translate(400%, 200%); 
+ } 
+ .square25{ 
+  transform: translate(500%, 200%); 
+ } 
+ .square26{ 
+  transform: translate(600%, 200%); 
+ } 
+ .square27{ 
+  transform: translate(700%, 200%); 
+ } 
+ .square30{ 
+  transform: translate(0%, 300%); 
+ } 
+ .square31{ 
+  transform: translate(100%, 300%); 
+ } 
+ .square32{ 
+  transform: translate(200%, 300%); 
+ } 
+ .square33{ 
+  transform: translate(300%, 300%); 
+ } 
+ .square34{ 
+  transform: translate(400%, 300%); 
+ } 
+ .square35{ 
+  transform: translate(500%, 300%); 
+ } 
+ .square36{ 
+  transform: translate(600%, 300%); 
+ } 
+ .square37{ 
+  transform: translate(700%, 300%); 
+ } 
+ .square40{ 
+  transform: translate(0%, 400%); 
+ } 
+ .square41{ 
+  transform: translate(100%, 400%); 
+ } 
+ .square42{ 
+  transform: translate(200%, 400%); 
+ } 
+ .square43{ 
+  transform: translate(300%, 400%); 
+ } 
+ .square44{ 
+  transform: translate(400%, 400%); 
+ } 
+ .square45{ 
+  transform: translate(500%, 400%); 
+ } 
+ .square46{ 
+  transform: translate(600%, 400%); 
+ } 
+ .square47{ 
+  transform: translate(700%, 400%); 
+ } 
+ .square50{ 
+  transform: translate(0%, 500%); 
+ } 
+ .square51{ 
+  transform: translate(100%, 500%); 
+ } 
+ .square52{ 
+  transform: translate(200%, 500%); 
+ } 
+ .square53{ 
+  transform: translate(300%, 500%); 
+ } 
+ .square54{ 
+  transform: translate(400%, 500%); 
+ } 
+ .square55{ 
+  transform: translate(500%, 500%); 
+ } 
+ .square56{ 
+  transform: translate(600%, 500%); 
+ } 
+ .square57{ 
+  transform: translate(700%, 500%); 
+ } 
+ .square60{ 
+  transform: translate(0%, 600%); 
+ } 
+ .square61{ 
+  transform: translate(100%, 600%); 
+ } 
+ .square62{ 
+  transform: translate(200%, 600%); 
+ } 
+ .square63{ 
+  transform: translate(300%, 600%); 
+ } 
+ .square64{ 
+  transform: translate(400%, 600%); 
+ } 
+ .square65{ 
+  transform: translate(500%, 600%); 
+ } 
+ .square66{ 
+  transform: translate(600%, 600%); 
+ } 
+ .square67{ 
+  transform: translate(700%, 600%); 
+ } 
+ .square70{ 
+  transform: translate(0%, 700%); 
+ } 
+ .square71{ 
+  transform: translate(100%, 700%); 
+ } 
+ .square72{ 
+  transform: translate(200%, 700%); 
+ } 
+ .square73{
+  transform: translate(300%, 700%); 
+ } 
+ .square74{ 
+  transform: translate(400%, 700%); 
+ } 
+ .square75{ 
+  transform: translate(500%, 700%); 
+ } 
+ .square76{ 
+  transform: translate(600%, 700%); 
+ } 
+ .square77{ 
+  transform: translate(700%, 700%); 
+ } 
+ 
