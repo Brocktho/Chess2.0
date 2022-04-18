@@ -1,16 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
-import { Coordinates } from "~/types";
+import { Coordinates, Piece, Notifier } from "~/types";
 
-const BlackQueen = ({initialPosition}:{initialPosition:Coordinates}) => {
+const BlackQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece bq `);
     const position = useRef(initialPosition);
+    const start = initialPosition;
+    const getUpdated = (newLocation : Coordinates) => {
+        let newClass = `piece bq square${newLocation.y}${newLocation.x}`;
+        setMyClass(newClass);
+    }
+    const thisQueen : Piece = {
+        position: position.current,
+        moves: [],
+        color: 1,
+        update: getUpdated,
+        arrayLocation: start,
+        initial: "q",
+        alive: true,
+    }
+    const thisNotifier : Notifier = {
+        arrayLocation: start,
+        color: 1,
+    }
 
     useEffect(() => {
         setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        updateBoard(thisQueen);
     },[])
 
     return(
-        <button className = {myClass}/>
+        <button className = {myClass} onClick={ e => { 
+            e.stopPropagation();
+            notifyBoard(e, thisNotifier)
+        }}/>
     )
 }
 

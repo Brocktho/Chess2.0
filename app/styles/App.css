@@ -7,7 +7,7 @@
 }
 
 .board{
-  background-image: url("Images/chessBoardBlue.png");
+  background-image: url("chessBoardBlue.png");
   background-repeat: no-repeat;
   background-size: 100%;
   position: relative;
@@ -41,40 +41,40 @@
 }
 
 .wk{
-  background-image: url("Images/wk.png");
+  background-image: url("wk.png");
 }
 .bk{
-  background-image: url("Images/bk.png");
+  background-image: url("bk.png");
 }
 .wp{
-  background-image: url("Images/wp.png");
+  background-image: url("wp.png");
 }
 .bp{
-  background-image: url("Images/bp.png");
+  background-image: url("bp.png");
 }
 .wr{
-  background-image: url("Images/wr.png");
+  background-image: url("wr.png");
 }
 .br{
-  background-image: url("Images/br.png");
+  background-image: url("br.png");
 }
 .wb{
-  background-image: url("Images/wb.png");
+  background-image: url("wb.png");
 }
 .bb{
-  background-image: url("Images/bb.png");
+  background-image: url("bb.png");
 }
 .wh{
-  background-image: url("Images/wh.png");
+  background-image: url("wh.png");
 }
 .bh{
-  background-image: url("Images/bh.png");
+  background-image: url("bh.png");
 }
 .wq{
-  background-image: url("Images/wq.png");
+  background-image: url("wq.png");
 }
 .bq{
-  background-image: url("Images/bq.png");
+  background-image: url("bq.png");
 }
 
 .square00{ 
@@ -269,4 +269,7 @@
  .square77{ 
   transform: translate(700%, 700%); 
  } 
+ .square-999-999{
+   display: none; 
+ }
  
