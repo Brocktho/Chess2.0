@@ -34,27 +34,24 @@ const ChessBoard = () => {
 
     const generatePositionMap = () => {
         invariant(boardState.current)
-        if(turn){
-            boardState.current.whitePositions = [];
-            boardState.current.whitePieces.forEach((pieces : Array<Piece>) => {
-                pieces.forEach((piece : Piece) => {
-                    if(piece.alive){
-                        invariant(boardState.current, "bruh");
-                        boardState.current.whitePositions.push((piece.position.y*8) + piece.position.x);
-                    }
-                })
+        boardState.current.whitePositions = [];
+        boardState.current.whitePieces.forEach((pieces : Array<Piece>) => {
+            pieces.forEach((piece : Piece) => {
+                if(piece.alive){
+                    invariant(boardState.current, "bruh");
+                    boardState.current.whitePositions.push((piece.position.y*8) + piece.position.x);
+                }
             })
-        }else{
-            boardState.current.blackPositions = [];
-            boardState.current.blackPieces.forEach( (pieces : Array<Piece>) => {
-                pieces.forEach( (piece : Piece) => {
-                    if(piece.alive){
-                        invariant(boardState.current, "bruh");
-                        boardState.current.blackPositions.push((piece.position.y*8) + piece.position.x);
-                    }
-                })
+        })
+        boardState.current.blackPositions = [];
+        boardState.current.blackPieces.forEach( (pieces : Array<Piece>) => {
+            pieces.forEach( (piece : Piece) => {
+                if(piece.alive){
+                    invariant(boardState.current, "bruh");
+                    boardState.current.blackPositions.push((piece.position.y*8) + piece.position.x);
+                }
             })
-        }
+        })
     }
     const returnCapture = (coordMap : number, color : number) => {
         invariant(boardState.current, "Board must be initialized");
@@ -67,6 +64,8 @@ const ChessBoard = () => {
                             if((piece.position.y*8) + piece.position.x === coordMap){
                                 piece.alive = false;
                                 piece.update(killCoord);
+                                piece.position = killCoord;
+                                boardState.current?.blackPositions
                                 found = true;
                             }
                         }
@@ -89,11 +88,6 @@ const ChessBoard = () => {
             })
         }
     }
-
-    const queryLocations = (locations : Array<Coordinates>, ) => {
-        invariant( boardState.current, "Board must be initialized" );
-        
-    }  
 
     const registerPiece = (piece: Piece) => {
         let color = piece.color;
@@ -133,136 +127,11 @@ const ChessBoard = () => {
     const generatePieceMoves = (piece : Piece) => {
         if(piece.alive){
             let color = piece.color;
-            let possibleMoves : Array<Coordinates> = [];
+            let possibleMoves : Array<Coordinates>  = piece.generateMoves();
             let possibleAttacks : Array<Coordinates> = [];
-            let px = piece.position.x;
-            let py = piece.position.y;
-            let possibleX : Array<number>= [];
-            let possibleY : Array<number>= [];
-            switch(piece.initial){
-                case "p":
-                    if(color === 0){
-                        if(piece.special){
-                            possibleMoves.push({
-                                x: px,
-                                y: py-2
-                            });
-                        }
-                        possibleMoves.push({
-                            x: px,
-                            y:py-1
-                        })
-                        possibleAttacks.push({
-                            x: px-1,
-                            y: py-1
-                        })
-                        possibleAttacks.push({
-                            x: px+1,
-                            y: py-1,
-                        })
-                    }else{
-                        if(piece.special){
-                            possibleMoves.push({
-                                x: px,
-                                y: py+2
-                            });
-                        }
-                        possibleMoves.push({
-                            x: px,
-                            y: py+1
-                        });
-                        possibleAttacks.push({
-                            x: px+1,
-                            y: py+1,
-                        })
-                        possibleAttacks.push({
-                            x: px-1,
-                            y: py+1
-                        })
-                    }
-                break;
-                case "h":
-                    switch (px){
-                        case 0:
-                            possibleX.push(px+2);
-                            possibleX.push(px+1);
-                            break;
-                        case 1:
-                            possibleX.push(px-1);
-                            possibleX.push(px+1);
-                            possibleX.push(px+2);
-                            break;
-                        case 2:
-                        case 3: 
-                        case 4:
-                        case 5:
-                            possibleX.push(px-2);
-                            possibleX.push(px-1);
-                            possibleX.push(px+1);
-                            possibleX.push(px+2);
-                            break;
-                        case 6:
-                            possibleX.push(px-2);
-                            possibleX.push(px-1);
-                            possibleX.push(px+1);
-                            break;
-                        case 7:
-                            possibleX.push(px-2);
-                            possibleX.push(px-1);
-                        break;
-                    }
-                    switch (py){
-                        case 0: 
-                            possibleY.push(py+2);
-                            possibleY.push(py+1);
-                            break;
-                        case 1:
-                            possibleY.push(py+2);
-                            possibleY.push(py+1);
-                            possibleY.push(py-1);
-                            break;
-                        case 2: 
-                        case 3:
-                        case 4:
-                        case 5:
-                            possibleY.push(py-2);
-                            possibleY.push(py-1);
-                            possibleY.push(py+1);
-                            possibleY.push(py+2);
-                            break;
-                        case 6:
-                            possibleY.push(py-2);
-                            possibleY.push(py-1);
-                            possibleY.push(py+1);
-                            break;
-                        case 7:
-                            possibleY.push(py-2);
-                            possibleY.push(py-1);
-                    }
-                possibleY.map(y => {
-                    possibleX.map(x => { 
-                        if(y === py+2 || y === py-2){
-                            if(x === px+1 || x === px-1){
-                                possibleMoves.push({
-                                    x: x,
-                                    y: y,
-                                });
-                            }
-                        }
-                        if(y === py+1 || y === py-1){
-                            if( x === px+2 || x === px-2){
-                                possibleMoves.push({
-                                    x: x,
-                                    y: y,
-                                });
-                            }
-                        }
-                    })
-                })
-                break;
+            if(piece.generateAttacks){
+                possibleAttacks  = piece.generateAttacks();
             }
-            let acceptedMoves : Array<number> = [];
-            let acceptedAttacks : Array<number> = [];
             possibleMoves = possibleMoves.map( (coord : Coordinates) => {
                 invariant(boardState.current, "board exists");
                 let pieceMap = ((coord.y*8) + coord.x);
@@ -270,12 +139,14 @@ const ChessBoard = () => {
                     if(!boardState.current.whitePositions.includes(pieceMap)){
                         if(piece.initial === "p"){
                             if(!boardState.current.blackPositions.includes(pieceMap)){
-                                acceptedMoves.push(pieceMap);
                                 return coord;
                             }else{
                                 return killCoord;
                             }
                         }
+                        console.log('')
+                        console.log(coord);
+                        console.log(piece.initial);
                         return coord;
                     }
                 }else{

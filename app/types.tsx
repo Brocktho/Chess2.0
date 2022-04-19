@@ -8,6 +8,8 @@ export type Piece = {
     moves: Array<Coordinates>,
     color: number,
     update: Function,
+    generateMoves: Function,
+    generateAttacks?: Function,
     arrayLocation: Coordinates,
     initial: string,
     alive: boolean,
