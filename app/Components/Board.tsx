@@ -261,6 +261,7 @@ const ChessBoard = () => {
                 moves: [],
                 color:2,
                 update: function(){},
+                generateMoves:() => {return killCoord},
                 alive: false,
                 arrayLocation: {x:-100, y:-100},
                 initial: "none",

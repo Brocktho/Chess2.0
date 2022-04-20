@@ -1,3 +1,4 @@
+import { useActionData } from '@remix-run/react';
 import { useState, useEffect, useRef } from 'react';
 import { Coordinates, Piece, Notifier } from "~/types";
 
@@ -10,13 +11,61 @@ const WhiteBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPositio
     }
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wb square${newLocation.y}${newLocation.x}`;
+        position.current = newLocation;
         setMyClass(newClass);
+    }
+    const bishopMoves = () => {
+        let px = position.current.x;
+        let py = position.current.y;
+        let currentX = px;
+        let currentY = py;
+        let possibleMoves : Array<Coordinates> = [];
+        while(currentX < 7 && currentY < 7){
+            currentX++
+            currentY++ 
+            possibleMoves.push({
+                x: currentX,
+                y: currentY,
+            })
+        }
+        currentX = px;
+        currentY = py;
+        while(currentX < 7 && currentY > 0){
+            currentX++
+            currentY--
+            possibleMoves.push({
+                x: currentX,
+                y: currentY,
+            })
+        }
+        currentX = px;
+        currentY = py;
+        while(currentX > 0 && currentY < 7){
+            currentX--
+            currentY++
+            possibleMoves.push({
+                x: currentX,
+                y: currentY,
+            })
+        }
+        currentX = px;
+        currentY = py;
+        while(currentX > 0 && currentY > 0){
+            currentX--
+            currentY--
+            possibleMoves.push({
+                x: currentX,
+                y: currentY,
+            })
+        }
+        return possibleMoves
     }
     const thisBishop : Piece = {
         position: position.current,
         moves: [],
         color: 0,
         update: getUpdated,
+        generateMoves: bishopMoves,
         arrayLocation: start,
         initial: "b",
         alive: true,
