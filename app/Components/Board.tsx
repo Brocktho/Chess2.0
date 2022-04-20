@@ -145,7 +145,6 @@ const ChessBoard = () => {
                                 return killCoord;
                             }
                         }
-
                         return coord;
                     }
                 }else{
