@@ -1,5 +1,3 @@
-import { resolvePtr } from 'dns/promises';
-import { cp } from 'fs/promises';
 import { useState, useEffect, useRef } from 'react';
 import { Coordinates, Piece, Notifier } from "~/types";
 
@@ -64,7 +62,7 @@ const BlackPawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         arrayLocation: start,
         initial: "p",
         alive: true,
-        special: specialMove,
+        special: specialMove.current,
     };
     const thisNotifier : Notifier = {
         arrayLocation: start,

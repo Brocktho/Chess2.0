@@ -80,26 +80,26 @@ const WhiteHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
                 possibleY.push(py-2);
                 possibleY.push(py-1);
         }
-    possibleY.map(y => {
-        possibleX.map(x => { 
-            if(y === py+2 || y === py-2){
-                if(x === px+1 || x === px-1){
-                    possibleMoves.push({
-                        x: x,
-                        y: y,
-                    });
+        possibleY.map(y => {
+            possibleX.map(x => { 
+                if(y === py+2 || y === py-2){
+                    if(x === px+1 || x === px-1){
+                        possibleMoves.push({
+                            x: x,
+                            y: y,
+                        });
+                    }
                 }
-            }
-            if(y === py+1 || y === py-1){
-                if( x === px+2 || x === px-2){
-                    possibleMoves.push({
-                        x: x,
-                        y: y,
-                    });
+                if(y === py+1 || y === py-1){
+                    if( x === px+2 || x === px-2){
+                        possibleMoves.push({
+                            x: x,
+                            y: y,
+                        });
+                    }
                 }
-            }
-        })
-    })
+            });
+        });
     return possibleMoves;
     }
 

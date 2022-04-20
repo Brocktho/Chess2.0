@@ -15,7 +15,6 @@ import MoveSpot from '~/Pieces/MoveSpot';
 import { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
 import invariant from 'tiny-invariant';
 
-
 const ChessBoard = () => {
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
@@ -53,7 +52,7 @@ const ChessBoard = () => {
             })
         })
     }
-    const returnCapture = (coordMap : number, color : number) => {
+    const returnCapture = async (coordMap : number, color : number) => {
         invariant(boardState.current, "Board must be initialized");
         let found = false;
         if(color === 0){
@@ -80,6 +79,8 @@ const ChessBoard = () => {
                             if((piece.position.y*8) + piece.position.x === coordMap){
                                 piece.alive = false;
                                 piece.update(killCoord);
+                                piece.position = killCoord;
+                                boardState.current?.blackPositions
                                 found = true;
                             }
                         }
@@ -144,9 +145,7 @@ const ChessBoard = () => {
                                 return killCoord;
                             }
                         }
-                        console.log('')
-                        console.log(coord);
-                        console.log(piece.initial);
+
                         return coord;
                     }
                 }else{
@@ -209,19 +208,18 @@ const ChessBoard = () => {
         }
         invariant(callingPiece, "Piece must be found");
         await refreshDom();
-        setTurn(!turn);
         if(callingPiece.initial === "p"){
             if(lastMove.current.special){
                 if(color === 0){
                     if(newLocation.y+1 === lastMove.current.endPosition.y){
                         if(newLocation.x === lastMove.current.endPosition.x){
-                            returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
+                            await returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
                         }
                     }
                 }else{
                     if(newLocation.y-1 === lastMove.current.endPosition.y){
                         if(newLocation.x === lastMove.current.endPosition.x){
-                            returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
+                            await returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
                         }
                     }
                 }
@@ -236,11 +234,12 @@ const ChessBoard = () => {
         }
         callingPiece.position = newLocation;
         callingPiece.special = false;
-        callingPiece.update(newLocation);
         let coordMap = (callingPiece.position.y*8) + (callingPiece.position.x);
         if((boardState.current.whitePositions.includes(coordMap)) || (boardState.current.blackPositions.includes(coordMap))){
-            returnCapture(coordMap, color);
+            await returnCapture(coordMap, color);
         }
+        callingPiece.update(newLocation);
+        setTurn(!turn);
     }
 
     const receiveAlert = async (event:React.MouseEvent, notified:Notifier ) => {
@@ -267,9 +266,7 @@ const ChessBoard = () => {
                 initial: "none",
             }
         }
-        console.log(callingPiece.position);
         moves = generatePieceMoves(callingPiece) as Array<Coordinates>;
-        console.log(moves);
         if(moves.length > 0 && moves[1] !== undefined){
             let bubbles = moves.map( (move,index) => {
                 return (<MoveSpot initialPosition={move} key={`MoveSpot${index}`} initial={callingPiece.initial} color={color} arrayLocation={notified.arrayLocation} sendMove={sendMove}/>)
