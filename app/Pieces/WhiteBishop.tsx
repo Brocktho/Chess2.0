@@ -19,46 +19,55 @@ const WhiteBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPositio
         let py = position.current.y;
         let currentX = px;
         let currentY = py;
-        let possibleMoves : Array<Coordinates> = [];
+        let possibleMoves : Array<Array<Coordinates>> = [];
+        let chunk : Array<Coordinates> = [];
         while(currentX < 7 && currentY < 7){
             currentX++
             currentY++ 
-            possibleMoves.push({
+            chunk.push({
                 x: currentX,
                 y: currentY,
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         currentX = px;
         currentY = py;
         while(currentX < 7 && currentY > 0){
             currentX++
             currentY--
-            possibleMoves.push({
+            chunk.push({
                 x: currentX,
                 y: currentY,
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         currentX = px;
         currentY = py;
         while(currentX > 0 && currentY < 7){
             currentX--
             currentY++
-            possibleMoves.push({
+            chunk.push({
                 x: currentX,
                 y: currentY,
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         currentX = px;
         currentY = py;
         while(currentX > 0 && currentY > 0){
             currentX--
             currentY--
-            possibleMoves.push({
+            chunk.push({
                 x: currentX,
                 y: currentY,
             })
         }
-        return possibleMoves
+        possibleMoves.push(chunk);
+        chunk = [];
+        return possibleMoves;
     }
     const thisBishop : Piece = {
         position: position.current,

@@ -16,78 +16,94 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
     const queenMoves = () => {
         let px = position.current.x;
         let py = position.current.y;
-        let possibleMoves : Array<Coordinates> = [];
+        let possibleMoves : Array<Array<Coordinates>> = [];
+        let chunk : Array<Coordinates> = [];
         while(px < 7 && py < 7){
             px++;
             py++;
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         py = position.current.y;
         while(px < 7 && py > 0){
             px++
             py--
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         py = position.current.y;
         while(px > 0 && py < 7){
             px--
             py++
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         py = position.current.y;
         while(px > 0 && py > 0){
             px--
             py--
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         py = position.current.y;
         while(px > 0){
             px--
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         while(px < 7){
             px++
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         px = position.current.x;
         while(py < 7){
             py++
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
+        chunk = [];
         py = position.current.y;
         while(py > 0){
             py--
-            possibleMoves.push({
+            chunk.push({
                 x:px,
                 y:py
             })
         }
+        possibleMoves.push(chunk);
         return possibleMoves;
     }
     const thisQueen : Piece = {

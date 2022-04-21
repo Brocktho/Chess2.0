@@ -16,17 +16,19 @@ const BlackPawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
     const blackPawnMoves = () => {
         let px = position.current.x;
         let py = position.current.y;
-        let possibleMoves : Array<Coordinates> = [];
+        let possibleMoves : Array<Array<Coordinates>> = [];
+        let chunk : Array<Coordinates> = [];
+        chunk.push({
+            x: px,
+            y: py+1
+        });
         if(specialMove.current){
-            possibleMoves.push({
+            chunk.push({
                 x: px,
                 y: py+2
             });
         }
-        possibleMoves.push({
-            x: px,
-            y: py+1
-        });
+        possibleMoves.push(chunk);
         return possibleMoves;
     }
     const blackPawnAttacks = () => {

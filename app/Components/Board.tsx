@@ -128,38 +128,56 @@ const ChessBoard = () => {
     const generatePieceMoves = (piece : Piece) => {
         if(piece.alive){
             let color = piece.color;
-            let possibleMoves : Array<Coordinates>  = piece.generateMoves();
+            let possibleMoves : Array<Array<Coordinates>>  = piece.generateMoves();
+            let trueMoves : Array<Coordinates> = [];
             let possibleAttacks : Array<Coordinates> = [];
             if(piece.generateAttacks){
                 possibleAttacks  = piece.generateAttacks();
             }
-            possibleMoves = possibleMoves.map( (coord : Coordinates) => {
-                invariant(boardState.current, "board exists");
-                let pieceMap = ((coord.y*8) + coord.x);
-                if(color === 0){
-                    if(!boardState.current.whitePositions.includes(pieceMap)){
-                        if(piece.initial === "p"){
-                            if(!boardState.current.blackPositions.includes(pieceMap)){
-                                return coord;
-                            }else{
-                                return killCoord;
+            possibleMoves.forEach((chunk : Array<Coordinates>) => { 
+                chunk.every((coord : Coordinates) => {
+                    invariant(boardState.current, "board exists");
+                    let pieceMap = ((coord.y*8) + coord.x);
+                    if(color === 0){
+                        if(!boardState.current.whitePositions.includes(pieceMap)){
+                            if(piece.initial === "p"){
+                                if(!boardState.current.blackPositions.includes(pieceMap)){
+                                    trueMoves.push(coord);
+                                    return true;
+                                }else{
+                                    return false;
+                                }
                             }
-                        }
-                        return coord;
-                    }
-                }else{
-                    if(!boardState.current.blackPositions.includes(pieceMap)){
-                        if(piece.initial === "p"){
-                            if(!boardState.current.whitePositions.includes(pieceMap)){
-                                return coord;
-                            }else{
-                                return killCoord;
+                            if(boardState.current.blackPositions.includes(pieceMap)){
+                                trueMoves.push(coord);
+                                return false;
                             }
+                            trueMoves.push(coord);
+                            return true;
+                        }else{
+                            return false;
                         }
-                        return coord;
+                    }else{
+                        if(!boardState.current.blackPositions.includes(pieceMap)){
+                            if(piece.initial === "p"){
+                                if(!boardState.current.whitePositions.includes(pieceMap)){
+                                    trueMoves.push(coord);
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                            }
+                            if(boardState.current.whitePositions.includes(pieceMap)){
+                                trueMoves.push(coord);
+                                return false;
+                            }
+                            trueMoves.push(coord);
+                            return true;
+                        }else{
+                            return false;
+                        }
                     }
-                }
-                return killCoord
+                })
             })
             if(piece.initial === "p"){
                 possibleAttacks = possibleAttacks.map( (coord : Coordinates) => {
@@ -191,7 +209,7 @@ const ChessBoard = () => {
                     return killCoord
                 })
             }
-            return possibleMoves.concat(possibleAttacks);
+            return trueMoves.concat(possibleAttacks);
         }
         return [];
     }
@@ -266,12 +284,10 @@ const ChessBoard = () => {
             }
         }
         moves = generatePieceMoves(callingPiece) as Array<Coordinates>;
-        if(moves.length > 0 && moves[1] !== undefined){
-            let bubbles = moves.map( (move,index) => {
-                return (<MoveSpot initialPosition={move} key={`MoveSpot${index}`} initial={callingPiece.initial} color={color} arrayLocation={notified.arrayLocation} sendMove={sendMove}/>)
-            })
-            setMoveBubbles(bubbles);
-        }
+        let bubbles = moves.map( (move,index) => {
+            return (<MoveSpot initialPosition={move} key={`MoveSpot${index}`} initial={callingPiece.initial} color={color} arrayLocation={notified.arrayLocation} sendMove={sendMove}/>)
+        })
+        setMoveBubbles(bubbles);
     }
 
     const blackPieces = Array.apply(null, Array(2)).map( 
