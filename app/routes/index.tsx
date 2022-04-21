@@ -30,6 +30,9 @@ const Chess = () => {
                     </Link>
                   </div>
                 )}
+            <div>
+                We are just getting started!
+            </div>
             <Board/>
         </div>
     )
