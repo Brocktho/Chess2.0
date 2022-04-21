@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type {
   LinksFunction,
   LoaderFunction,
@@ -16,6 +17,10 @@ import {
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import extraCss from "./styles/App.css";
 import { getUser } from "./session.server";
+
+import type { Socket } from "socket.io-client";
+import io from "socket.io-client";
+import { SocketProvider } from "./context";
 
 export const links: LinksFunction = () => {
   return [
@@ -41,6 +46,23 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function App() {
+  const [socket, setSocket] = useState<Socket>();
+
+  useEffect(() => {
+    const socket = io();
+    setSocket(socket);
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("confirmation", (data) => {
+      console.log(data);
+    });
+  }, [socket]);
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -48,7 +70,9 @@ export default function App() {
         <Links />
       </head>
       <body className="h-full">
-        <Outlet />
+        <SocketProvider socket={socket}>
+            <Outlet />
+          </SocketProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

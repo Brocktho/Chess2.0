@@ -14,8 +14,11 @@ import BlackPawn from '~/Pieces/BlackPawn';
 import MoveSpot from '~/Pieces/MoveSpot';
 import { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
 import invariant from 'tiny-invariant';
+import { useSocket } from "~/context";
+
 
 const ChessBoard = () => {
+    const socket = useSocket();
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
     const [turn, setTurn] = useState<boolean>(false);
@@ -364,6 +367,22 @@ const ChessBoard = () => {
             )
         }
     )
+
+  useEffect(() => {
+    if (!socket) return;
+    
+    socket.on("event", (data) => {
+        console.log(data);
+    });
+    
+    socket.on("alert", (data) => {
+        console.log(data);
+        socket.emit("alert", {x: "you deserve this"});
+    })
+
+    socket.emit("chat message", "this String");
+    }, [socket]);
+
     useEffect(() => {
         console.log(boardState.current);
         generatePositionMap();
