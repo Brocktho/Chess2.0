@@ -39,12 +39,20 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (data) => {
     console.log(socket.id, data);
-    socket.emit("alert", "you fuckin nerd");
-    console.log("should emit");
+    socket.emit("message", "Append this");
   })
-  
+
+  socket.on("chatMessage", (data) => {
+    console.log(data)
+    socket.emit("message", data);
+  })
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
   
 });
+
 
 app.use(compression());
 

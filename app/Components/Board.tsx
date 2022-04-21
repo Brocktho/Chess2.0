@@ -371,16 +371,12 @@ const ChessBoard = () => {
   useEffect(() => {
     if (!socket) return;
     
-    socket.on("event", (data) => {
-        console.log(data);
-    });
-    
     socket.on("alert", (data) => {
         console.log(data);
         socket.emit("alert", {x: "you deserve this"});
     })
 
-    socket.emit("chat message", "this String");
+    socket.emit("chat message", "Chess Board checking in");
     }, [socket]);
 
     useEffect(() => {

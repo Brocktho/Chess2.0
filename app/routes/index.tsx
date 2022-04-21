@@ -1,7 +1,9 @@
 import Board from "~/Components/Board";
+import Chat from "~/Components/Chat";
 import { Link } from "@remix-run/react";
 import { useSocket } from "~/context";
 import { useEffect } from "react";
+import { SocketProvider } from "~/context";
 
 import { useOptionalUser } from "~/utils";
 
@@ -10,8 +12,6 @@ import { useOptionalUser } from "~/utils";
 const Chess = () => {
   const user = useOptionalUser();
   const socket = useSocket();
-
-
 
     return (
         <div className="min-h-screen bg-slate-800">
@@ -44,7 +44,12 @@ const Chess = () => {
             <button type="button" onClick={() => socket?.emit("chat message", "other string")}>
           Send ping
         </button>
-            <Board/>
+            <div className="flex flex-row w-full items-center justify-between">
+            <SocketProvider socket={socket}>
+                <Board/>
+                <Chat/>
+            </SocketProvider>
+            </div>
         </div>
     )
 }
