@@ -31,7 +31,7 @@ const Chess = () => {
                   </div>
                 )}
             <div>
-                We are just getting started!
+                We are just getting started! Now!
             </div>
             <Board/>
         </div>
