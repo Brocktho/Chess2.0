@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef, ReactElement} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import WhiteRook from '~/Pieces/WhiteRook';
 import WhiteHorse from '~/Pieces/WhiteHorse';
 import WhiteBishop from '~/Pieces/WhiteBishop';
@@ -12,9 +12,9 @@ import BlackQueen from '~/Pieces/BlackQueen';
 import BlackKing from '~/Pieces/BlackKing';
 import BlackPawn from '~/Pieces/BlackPawn';
 import MoveSpot from '~/Pieces/MoveSpot';
-import { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
+import type { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
 import invariant from 'tiny-invariant';
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 
 const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
@@ -66,7 +66,6 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
                                 piece.alive = false;
                                 piece.update(killCoord);
                                 piece.position = killCoord;
-                                boardState.current?.blackPositions
                                 found = true;
                             }
                         }
@@ -82,7 +81,6 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
                                 piece.alive = false;
                                 piece.update(killCoord);
                                 piece.position = killCoord;
-                                boardState.current?.blackPositions
                                 found = true;
                             }
                         }
@@ -298,7 +296,8 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
                 Array.apply(null, Array(8)).map( 
                     (b, x) => {
                         let thisPosition : Coordinates = {
-                            x,y
+                            x:x,
+                            y:y
                         }
                         switch(y){
                         case 1:
@@ -321,8 +320,11 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
                                     return(<BlackHorse initialPosition={thisPosition} updateBoard={registerPiece} notifyBoard={receiveAlert} key={`BlackHorse${x}`}/>)
                                 case 7: 
                                     return(<BlackRook initialPosition={thisPosition} updateBoard={registerPiece} notifyBoard={receiveAlert} key={`BlackRook${x}`}/>)
-
+                                default:
+                                    return(<BlackPawn initialPosition={thisPosition} updateBoard={registerPiece} notifyBoard={receiveAlert}  key={`BlackPawn${x}`}/>)
                             }
+                            default:
+                                return(<BlackPawn initialPosition={thisPosition} updateBoard={registerPiece} notifyBoard={receiveAlert}  key={`BlackPawn${x}`}/>)
                         }
                     }
                 )
@@ -335,7 +337,8 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
                 Array.apply(null, Array(8)).map( 
                     (b, x) => {
                         let thisPosition : Coordinates = {
-                            x,y:y+6
+                            x: x,
+                            y:y+6
                         }
                         switch(y){
                         case 0:

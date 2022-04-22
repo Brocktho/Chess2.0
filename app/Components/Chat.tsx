@@ -8,7 +8,9 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
     const user = useOptionalUser();
     const [chatItems, setChatItems] = useState<Array<chatMessage> | null>([]);
     const chatItemsHold = useRef<Array<chatMessage>>([]);
+    const previous = useRef<Array<chatMessage>>([]);
     const socketConnection = useRef<string>("guest");
+    let optimistic : NodeJS.Timeout;
 
     const refreshDom = async () => {
         setChatItems(null);
@@ -28,10 +30,15 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
                 name: user ? user.email : socketConnection.current, 
                 message:chat.value
             };
+            previous.current = chatItemsHold.current;
             chatItemsHold.current.push(message);
             updateChat();
             chat.value = "";
             socket?.emit('chatMessage', message );
+            optimistic = setTimeout(() => {
+                chatItemsHold.current = previous.current;
+                updateChat();
+            }, 2000);
         }
     }
 
@@ -57,6 +64,13 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
                 message: data,
             });
             updateChat();
+        })
+        socket.on("updateChat", (data : chatMessage) => {
+            chatItemsHold.current.push(data);
+            updateChat();
+        })
+        socket.on("updateWorked", (data : boolean) => {
+            clearTimeout(optimistic);
         })
 
     }, [socket]);
