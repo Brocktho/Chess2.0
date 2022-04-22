@@ -35,7 +35,8 @@ io.of('/gameduplicate').on('connection', (socket) => {
   count++
   socket.on("chatMessage", (data) => {
     console.log(data)
-    socket.emit("message", data);
+    socket.broadcast.emit("updateChat", data);
+    io.to(socket.id).emit("updateWorked", true);
   })
   socket.on("chess", (data) => {
     console.log(socket.id, data);
