@@ -14,15 +14,12 @@ import BlackPawn from '~/Pieces/BlackPawn';
 import MoveSpot from '~/Pieces/MoveSpot';
 import type { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
 import invariant from 'tiny-invariant';
-import type { Socket } from "socket.io-client";
 
 
-const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
-    const [player, setPlayer] = useState<number | null>(null);
-    const displayPlayer = useRef<string | null>(null);
+const OfflineChessBoard = () => {
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
-    const turns = useRef<number>(1);
+    const [turn, setTurn] = useState<boolean>(false);
     const killCoord : Coordinates = {
         x: -999,
         y: -999
@@ -34,27 +31,6 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         initial: "none",
         color: 2,
     });
-
-    const xToString = (x : number) => {
-        switch(x){
-            case 0:
-                return "a";
-            case 1: 
-                return "b";
-            case 2:
-                return "c";
-            case 3:
-                return "d";
-            case 4:
-                return "e";
-            case 5:
-                return "f";
-            case 6:
-                return "g";
-            default:
-                return "h";
-        }
-    }
 
     const generatePositionMap = () => {
         invariant(boardState.current)
@@ -240,10 +216,10 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
     const sendMove = async (color : number, arrayLocation : Coordinates, newLocation : Coordinates) => {
         invariant(boardState.current, "Board State must be initialized");
         let callingPiece : Piece | null = null;
-        if(color === 0 && turns.current%2 === 1 && player === 1){
+        if(color === 0 && !turn){
             callingPiece = boardState.current.whitePieces[arrayLocation.y][arrayLocation.x];
         }
-        if(color === 1 && turns.current%2 === 0 && player === 2){
+        if(color === 1 && turn){
             callingPiece = boardState.current.blackPieces[arrayLocation.y][arrayLocation.x];
         }
         invariant(callingPiece, "Piece must be found");
@@ -272,81 +248,14 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
             initial: callingPiece.initial,
             color: callingPiece.color
         }
-        let trueX  = xToString(callingPiece.position.x);
-        
-        let previousPosition = `${callingPiece.initial}${trueX}${callingPiece.position.y}`;
         callingPiece.position = newLocation;
         callingPiece.special = false;
-        let newX = xToString(callingPiece.position.x);
-        let nextPosition = `${callingPiece.initial}${newX}${callingPiece.position.y}`;
-        let pieceAccess = {
-            location: callingPiece.arrayLocation,
-            color: callingPiece.color,
-        }
-        let serverPiece = {
-            prev: previousPosition,
-            next: nextPosition,
-            nextLocation: newLocation,
-            access: pieceAccess,
-        }
-        socket?.emit("sendMove", serverPiece);
-
         let coordMap = (callingPiece.position.y*8) + (callingPiece.position.x);
         if((boardState.current.whitePositions.includes(coordMap)) || (boardState.current.blackPositions.includes(coordMap))){
             await returnCapture(coordMap, color);
         }
-
         callingPiece.update(newLocation);
-        turns.current++
-    }
-    const receiveMove = async (color : number, arrayLocation : Coordinates, newLocation : Coordinates) => {
-        invariant(boardState.current, "Board State must be initialized");
-        let callingPiece : Piece | null = null;
-        if(color === 0 && turns.current%2 === 1 && player === 1){
-            callingPiece = boardState.current.whitePieces[arrayLocation.y][arrayLocation.x];
-        }
-        if(color === 1 && turns.current%2 === 0 && player === 2){
-            callingPiece = boardState.current.blackPieces[arrayLocation.y][arrayLocation.x];
-        }
-        invariant(callingPiece, "Piece must be found");
-        await refreshDom();
-        if(callingPiece.initial === "p"){
-            if(lastMove.current.special){
-                if(color === 0){
-                    if(newLocation.y+1 === lastMove.current.endPosition.y){
-                        if(newLocation.x === lastMove.current.endPosition.x){
-                            await returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
-                        }
-                    }
-                }else{
-                    if(newLocation.y-1 === lastMove.current.endPosition.y){
-                        if(newLocation.x === lastMove.current.endPosition.x){
-                            await returnCapture(((lastMove.current.endPosition.y*8) + lastMove.current.endPosition.x), color);
-                        }
-                    }
-                }
-            }
-        }
-        lastMove.current = {
-            initialPosition: callingPiece.position,
-            endPosition: newLocation,
-            special: callingPiece.special,
-            initial: callingPiece.initial,
-            color: callingPiece.color
-        }
-        let trueX  = xToString(callingPiece.position.x);
-        
-        let previousPosition = `${callingPiece.initial}${trueX}${callingPiece.position.y}`;
-        callingPiece.position = newLocation;
-        callingPiece.special = false;
-
-        let coordMap = (callingPiece.position.y*8) + (callingPiece.position.x);
-        if((boardState.current.whitePositions.includes(coordMap)) || (boardState.current.blackPositions.includes(coordMap))){
-            await returnCapture(coordMap, color);
-        }
-
-        callingPiece.update(newLocation);
-        turns.current++
+        setTurn(!turn);
     }
 
     const receiveAlert = async (event:React.MouseEvent, notified:Notifier ) => {
@@ -355,10 +264,10 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         invariant(boardState.current, "Board must be initialized");
         let moves : Array<Coordinates>;
         let callingPiece : Piece;
-        if(color === 0 && turns.current%2 === 1 && player === 1){
+        if(color === 0 && !turn){
             callingPiece = boardState.current.whitePieces[notified.arrayLocation.y][notified.arrayLocation.x];
         }
-        else if(color === 1 && turns.current%2 === 0 && player === 2){
+        else if(color === 1 && turn){
             callingPiece = boardState.current.blackPieces[notified.arrayLocation.y][notified.arrayLocation.x]
         }
         else{
@@ -460,54 +369,17 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         }
     )
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.emit("chess", "Chess Board checking in");
-    socket.on("chessPlayer", data => {
-        console.log(data);
-    })
-
-    }, []);
-
     useEffect(() => {
-    if (!socket) return;
-        socket.on("chessPlayer", data => {
-            if(data === 1){
-                displayPlayer.current = "You are playing the White Pieces";
-            }else if(data === 2){
-                displayPlayer.current = "You are playing the Black Pieces";
-            }else{
-                displayPlayer.current = "You are spectating";
-            }
-            setPlayer(data);
-        })
-
-        socket.on("chessMove", data => {
-            turns.current++
-            receiveMove(data.color, data.location, data.newLocation);
-        })
-    
-    }, [socket])
-
-    useEffect(() => {
+        console.log(boardState.current);
         generatePositionMap();
-    }, [turns.current])
-
+    }, [turn])
     return(
-        <div className="flex flex-col gap-2">
-            {player ? 
-            <h1 className="text-white">{displayPlayer.current}</h1>
-            : 
-            <h1 className="text-white">Not Initialized</h1>
-            }
-            <div className="board bg-slate-800" onClick={async e => await refreshDom()}>
-                {blackPieces}
-                {whitePieces}
-                {moveBubbles}
-            </div>
+        <div className="board bg-slate-800" onClick={async e => await refreshDom()}>
+            {blackPieces}
+            {whitePieces}
+            {moveBubbles}
         </div>
     )
 }
 
-export default ChessBoard
+export default OfflineChessBoard
