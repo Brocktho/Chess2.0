@@ -17,7 +17,7 @@ import invariant from 'tiny-invariant';
 import { Socket } from "socket.io-client";
 
 
-const ChessBoard = ({ socket } : { socket : Socket }) => {
+const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
     const [turn, setTurn] = useState<boolean>(false);
