@@ -47,6 +47,14 @@ io.of('/play').on('connection', (socket) => {
       io.to(socket.id).emit("chatStart", "Chat initialized");
     }
   })
+  socket.on("sendMove", (data) => {
+    let response = {
+      location: data.access.location,
+      color: data.access.color,
+      newLocation: data.nextLocation,
+    }
+    socket.broadcast.emit("chessMove", response);
+  })
   socket.on("disconnect", () => {
     count--
   })

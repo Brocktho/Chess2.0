@@ -299,13 +299,14 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         callingPiece.update(newLocation);
         turns.current++
     }
+
     const receiveMove = async (color : number, arrayLocation : Coordinates, newLocation : Coordinates) => {
         invariant(boardState.current, "Board State must be initialized");
         let callingPiece : Piece | null = null;
-        if(color === 0 && turns.current%2 === 1 && player === 1){
+        if(color === 0){
             callingPiece = boardState.current.whitePieces[arrayLocation.y][arrayLocation.x];
         }
-        if(color === 1 && turns.current%2 === 0 && player === 2){
+        if(color === 1){
             callingPiece = boardState.current.blackPieces[arrayLocation.y][arrayLocation.x];
         }
         invariant(callingPiece, "Piece must be found");
@@ -334,9 +335,6 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
             initial: callingPiece.initial,
             color: callingPiece.color
         }
-        let trueX  = xToString(callingPiece.position.x);
-        
-        let previousPosition = `${callingPiece.initial}${trueX}${callingPiece.position.y}`;
         callingPiece.position = newLocation;
         callingPiece.special = false;
 
@@ -344,9 +342,9 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         if((boardState.current.whitePositions.includes(coordMap)) || (boardState.current.blackPositions.includes(coordMap))){
             await returnCapture(coordMap, color);
         }
-
-        callingPiece.update(newLocation);
         turns.current++
+        callingPiece.update(newLocation);
+
     }
 
     const receiveAlert = async (event:React.MouseEvent, notified:Notifier ) => {
@@ -484,7 +482,8 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         })
 
         socket.on("chessMove", data => {
-            turns.current++
+            console.log("received move");
+            console.log(data);
             receiveMove(data.color, data.location, data.newLocation);
         })
     
