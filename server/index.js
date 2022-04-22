@@ -28,11 +28,11 @@ const io = new Server(httpServer);
 // from a client
 let count = 0;
 
-io.of('/gameduplicate').on('connection', (socket) => {
-
+io.of('/play').on('connection', (socket) => {
+  count++
   socket.emit("connection", socket.id);
   socket.emit("chessPlayer", count);
-  count++
+  
   socket.on("chatMessage", (data) => {
     console.log(data)
     socket.broadcast.emit("updateChat", data);

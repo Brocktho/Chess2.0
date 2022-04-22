@@ -82,14 +82,17 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
     console.log(socketConnection.current);
     console.log(chatItemsHold.current);
     return (
-        <div className="bg-white w-96 h-96 flex flex-col gap-4">
+        <div className="bg-white w-96 h-96 flex flex-col justify-between rounded-xl shadow-xl">
+            <div className="w-full h-4/5 flex flex-col items-center text-xs overflow-y-auto px-6 pt-2">
+            <h1 className="text-lg">Live Chat</h1>
             {chatItems && chatItems.map( (item) => 
             {
-                return <p>{item.name}: {item.message}</p>
+                return <p className="w-full">{item.name}: {item.message}</p>
             })}
-            <form onSubmit={(event) => handleSubmit(event)}>
-                <input type="text" name="chat" id="chat" className="rounded-full border-2"/>
-                <input type="submit" value="Send" className="w-full rounded-full bg-green-500"/>
+            </div>
+            <form className="flex flex-col gap-2 p-4" onSubmit={(event) => handleSubmit(event)}>
+                <input type="text" name="chat" id="chat" placeholder="Enter Chat Message" className="rounded-full border-2 w-full pl-2"/>
+                <input type="submit" value="Send" className="w-full rounded-full bg-transparent text-green-500 border-2 border-green-500 hover:text-white hover:border-none hover:bg-green-500 hover:py-0.5 cursor-pointer"/>
             </form>
         </div>
     )

@@ -15,7 +15,7 @@ const Chess = () => {
   const [socket, setSocket] = useState<Socket | undefined>();
   
   useEffect( () => {
-    const socket = io('/gameduplicate');
+    const socket = io('/play');
     setSocket(socket);
     return () => {
         socket.close();
@@ -52,7 +52,7 @@ const Chess = () => {
             <button type="button" onClick={() => socket?.emit("chat message", "other string")}>
           Send ping
         </button>
-            <div className="flex flex-row w-full items-center justify-between">
+            <div className="flex flex-row w-full items-center justify-around">
             <SocketProvider socket={socket}>
                 <Board socket={socket}/>
                 <Chat socket={socket}/>

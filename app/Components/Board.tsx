@@ -18,9 +18,11 @@ import type { Socket } from "socket.io-client";
 
 
 const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
+    const [player, setPlayer] = useState<number | null>(null);
+    const displayPlayer = useRef<string | null>(null);
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
-    const [turn, setTurn] = useState<boolean>(false);
+    const turns = useRef<number>(1);
     const killCoord : Coordinates = {
         x: -999,
         y: -999
@@ -217,10 +219,10 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
     const sendMove = async (color : number, arrayLocation : Coordinates, newLocation : Coordinates) => {
         invariant(boardState.current, "Board State must be initialized");
         let callingPiece : Piece | null = null;
-        if(color === 0 && !turn){
+        if(color === 0 && turns.current%2 === 1 && player === 1){
             callingPiece = boardState.current.whitePieces[arrayLocation.y][arrayLocation.x];
         }
-        if(color === 1 && turn){
+        if(color === 1 && turns.current%2 === 0 && player === 2){
             callingPiece = boardState.current.blackPieces[arrayLocation.y][arrayLocation.x];
         }
         invariant(callingPiece, "Piece must be found");
@@ -256,7 +258,7 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
             await returnCapture(coordMap, color);
         }
         callingPiece.update(newLocation);
-        setTurn(!turn);
+        turns.current++
     }
 
     const receiveAlert = async (event:React.MouseEvent, notified:Notifier ) => {
@@ -265,21 +267,21 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         invariant(boardState.current, "Board must be initialized");
         let moves : Array<Coordinates>;
         let callingPiece : Piece;
-        if(color === 0 && !turn){
+        if(color === 0 && turns.current%2 === 1 && player === 1){
             callingPiece = boardState.current.whitePieces[notified.arrayLocation.y][notified.arrayLocation.x];
         }
-        else if(color === 1 && turn){
+        else if(color === 1 && turns.current%2 === 0 && player === 2){
             callingPiece = boardState.current.blackPieces[notified.arrayLocation.y][notified.arrayLocation.x]
         }
         else{
             callingPiece = {
-                position: {x:-100, y:-100},
+                position: killCoord,
                 moves: [],
                 color:2,
                 update: function(){},
                 generateMoves:() => {return killCoord},
                 alive: false,
-                arrayLocation: {x:-100, y:-100},
+                arrayLocation: killCoord,
                 initial: "none",
             }
         }
@@ -383,7 +385,14 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
     useEffect(() => {
     if (!socket) return;
         socket.on("chessPlayer", data => {
-            console.log(data);
+            if(data === 1){
+                displayPlayer.current = "You are playing the White Pieces";
+            }else if(data === 2){
+                displayPlayer.current = "You are playing the Black Pieces";
+            }else{
+                displayPlayer.current = "You are spectating";
+            }
+            setPlayer(data);
         })
     
     }, [socket])
@@ -391,12 +400,21 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
     useEffect(() => {
         console.log(boardState.current);
         generatePositionMap();
-    }, [turn])
+    }, [turns.current])
+
     return(
-        <div className="board bg-slate-800" onClick={async e => await refreshDom()}>
-            {blackPieces}
-            {whitePieces}
-            {moveBubbles}
+        <div className="flex flex-col gap-2">
+            {player ? 
+            <h1 className="text-white">{displayPlayer.current}</h1>
+            : 
+            <h1 className="text-white">Not Initialized</h1>
+            }
+            <div className="board bg-slate-800" onClick={async e => await refreshDom()}>
+                
+                {blackPieces}
+                {whitePieces}
+                {moveBubbles}
+            </div>
         </div>
     )
 }
