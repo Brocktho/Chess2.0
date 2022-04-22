@@ -27,16 +27,20 @@ const io = new Server(httpServer);
 // Then you can use `io` to listen the `connection` event and get a socket
 // from a client
 
-
+let boards = {};
 io.of(/\w\d/g).on("connection", (socket) => {
   const namespace = socket.nsp;
-  let count;
-  if(count === undefined){
-    count = 0;
+  const thisGame = namespace.name;
+  if(boards[`${thisGame}`] === undefined){
+    boards[`${thisGame}`] = {
+      players: 0,
+
+    }
   }
-  count++
+  console.log(boards);
+  boards[`${thisGame}`].players++
   socket.emit("connection", socket.id);
-  socket.emit("chessPlayer", count);
+  socket.emit("chessPlayer", boards[`${thisGame}`].players);
   
   socket.on("chatMessage", (data) => {
     console.log(data)
@@ -61,7 +65,7 @@ io.of(/\w\d/g).on("connection", (socket) => {
     socket.broadcast.emit("chessMove", response);
   })
   socket.on("disconnect", () => {
-    count--
+    boards[`${thisGame}`].players--
   })
   
 });

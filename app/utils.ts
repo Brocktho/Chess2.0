@@ -1,7 +1,9 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
+import { randomUUID } from "crypto";
 
-import type { User } from "~/models/user.server";
+
+import type { User, GuestUser } from "~/models/user.server";
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -24,17 +26,18 @@ function isUser(user: any): user is User {
   return user && typeof user === "object" && typeof user.email === "string";
 }
 
-export function useOptionalUser(): User | undefined {
+export function useOptionalUser(): User | GuestUser {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
-    return undefined;
+    let guest : GuestUser = { username: randomUUID()};
+    return guest;
   }
   return data.user;
 }
 
 export function useUser(): User {
   const maybeUser = useOptionalUser();
-  if (!maybeUser) {
+  if (! ("email" in maybeUser)){
     throw new Error(
       "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead."
     );
