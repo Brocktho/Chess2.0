@@ -26,11 +26,38 @@ const io = new Server(httpServer);
 
 // Then you can use `io` to listen the `connection` event and get a socket
 // from a client
-io.on("connection", (socket) => {
+let count = 0;
+
+io.of('/gameduplicate').on('connection', (socket) => {
+
+  socket.emit("connection", socket.id);
+  socket.emit("chessPlayer", count);
+  count++
+  socket.on("chatMessage", (data) => {
+    console.log(data)
+    socket.emit("message", data);
+  })
+  socket.on("chess", (data) => {
+    console.log(socket.id, data);
+    io.to(socket.id).emit("boardStart", "Chess Board is live!");
+  });
+  socket.on("chatLoad", (data) => {
+    if(data){
+      io.to(socket.id).emit("chatStart", "Chat initialized");
+    }
+  })
+  socket.on("disconnect", () => {
+    count--
+  })
+})
+
+io.of('/').on("connection", (socket) => {
   // from this point you are on the WS connection with a specific client
   console.log(socket.id, "connected");
 
   socket.emit("confirmation", "connected!");
+
+  socket.emit("connection", socket.id);
 
   socket.on("event", (data) => {
     console.log(socket.id, data);

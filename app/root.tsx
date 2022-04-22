@@ -72,7 +72,7 @@ export default function App() {
       <body className="h-full">
         <SocketProvider socket={socket}>
             <Outlet />
-          </SocketProvider>
+        </SocketProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

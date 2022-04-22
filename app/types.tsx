@@ -40,3 +40,8 @@ export type Movement = {
     initial: string,
     color: number,
 }
+
+export type chatMessage = {
+    name: string,
+    message: string,
+}

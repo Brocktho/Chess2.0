@@ -1,8 +1,10 @@
 import Board from "~/Components/Board";
 import Chat from "~/Components/Chat";
 import { Link } from "@remix-run/react";
-import { useSocket } from "~/context";
+import io from "socket.io-client";
+import { useState, useEffect } from "react";
 import { SocketProvider } from "~/context";
+import type { Socket } from "socket.io-client";
 
 import { useOptionalUser } from "~/utils";
 
@@ -10,8 +12,15 @@ import { useOptionalUser } from "~/utils";
 
 const Chess = () => {
   const user = useOptionalUser();
-  const socket = useSocket();
-
+  const [socket, setSocket] = useState<Socket | undefined>();
+  
+  useEffect( () => {
+    const socket = io('/gameduplicate');
+    setSocket(socket);
+    return () => {
+        socket.close();
+    }
+  }, [])
     return (
         <div className="min-h-screen bg-slate-800">
             {user ? (
