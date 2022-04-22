@@ -1,10 +1,5 @@
-import Board from "~/Components/Board";
-import Chat from "~/Components/Chat";
-import { Link } from "@remix-run/react";
-import io from "socket.io-client";
-import { useState, useEffect } from "react";
-import { SocketProvider } from "~/context";
-import type { Socket } from "socket.io-client";
+
+import { Link, Outlet } from "@remix-run/react";
 
 import { useOptionalUser } from "~/utils";
 
@@ -12,15 +7,6 @@ import { useOptionalUser } from "~/utils";
 
 const Chess = () => {
   const user = useOptionalUser();
-  const [socket, setSocket] = useState<Socket | undefined>();
-  
-  useEffect( () => {
-    const socket = io('/play');
-    setSocket(socket);
-    return () => {
-        socket.close();
-    }
-  }, [])
     return (
         <div className="min-h-screen bg-slate-800">
             {user ? (
@@ -46,17 +32,8 @@ const Chess = () => {
                     </Link>
                   </div>
                 )}
-            <div>
-                We are just getting started! Now! That makes more sense...
-            </div>
-            <button type="button" onClick={() => socket?.emit("chat message", "other string")}>
-          Send ping
-        </button>
             <div className="flex flex-row w-full items-center justify-around">
-            <SocketProvider socket={socket}>
-                <Board socket={socket}/>
-                <Chat socket={socket}/>
-            </SocketProvider>
+              <Outlet/>
             </div>
         </div>
     )
