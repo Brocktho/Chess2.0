@@ -15,14 +15,16 @@ import MoveSpot from '~/Pieces/MoveSpot';
 import type { Coordinates, Board, Piece, Notifier, Movement } from "~/types";
 import invariant from 'tiny-invariant';
 import type { Socket } from "socket.io-client";
+import type { User, GuestUser } from "~/models/user.server";
 
 
-const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
+const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : User | GuestUser}) => {
     const [player, setPlayer] = useState<number | null>(null);
     const displayPlayer = useRef<string | null>(null);
     const boardState = useRef<Board | null>(null)
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
     const turns = useRef<number>(1);
+    const thisWindow = typeof window !== 'undefined';
     const killCoord : Coordinates = {
         x: -999,
         y: -999
@@ -460,17 +462,46 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
 
   useEffect(() => {
     if (!socket) return;
+    if(thisWindow){
+        if(!user && !localStorage.getItem("guestUser")){
+            localStorage.setItem("guestUser", self.crypto.randomUUID());
+            let guest = localStorage.getItem("guestUser") as string;
+            let user : GuestUser = {
+                username : guest,        
+            };
+            socket.on("connection", data => {
+                socket.emit("chess", "Chess Board checking in");
+                socket.emit("thisPlayer", user.username);
+            })
 
-    socket.emit("chess", "Chess Board checking in");
-    socket.on("chessPlayer", data => {
-        console.log(data);
-    })
-
+        }else{
+            socket.on("connection", data => {
+                socket.emit("chess", "Chess Board checking in");
+                socket.emit("thisPlayer", user.username);
+            })
+        }
+    }else{
+        if(!user){
+            let guest : GuestUser = {
+                username: "Temporary User",
+            };
+            socket.on("connection", data => {
+                socket.emit("chess", "Chess Board checking in");
+                socket.emit("thisPlayer", guest.username);
+            })
+        }else{
+            socket.on("connection", data => {
+                socket.emit("chess", "Chess Board checking in");
+                socket.emit("thisPlayer", user.username);
+            })
+        }
+    }
     }, []);
 
     useEffect(() => {
     if (!socket) return;
         socket.on("chessPlayer", data => {
+            console.log(data);
             if(data === 1){
                 displayPlayer.current = "You are playing the White Pieces";
             }else if(data === 2){
@@ -482,8 +513,6 @@ const ChessBoard = ({ socket } : { socket : Socket | undefined}) => {
         })
 
         socket.on("chessMove", data => {
-            console.log("received move");
-            console.log(data);
             receiveMove(data.color, data.location, data.newLocation);
         })
     

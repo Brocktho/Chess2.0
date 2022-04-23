@@ -22,22 +22,21 @@ export function useMatchesData(
   return route?.data;
 }
 
-function isUser(user: any): user is User {
+export function isUser(user: any): user is User {
   return user && typeof user === "object" && typeof user.email === "string";
 }
 
-export function useOptionalUser(): User | GuestUser {
+export function useOptionalUser(): User | null {
   const data = useMatchesData("root");
   if (!data || !isUser(data.user)) {
-    let guest : GuestUser = { username: randomUUID()};
-    return guest;
+    return null;
   }
   return data.user;
 }
 
-export function useUser(): User {
+export function useUser(): User | null {
   const maybeUser = useOptionalUser();
-  if (! ("email" in maybeUser)){
+  if (!maybeUser){
     throw new Error(
       "No user found in root loader, but user is required by useUser. If user is optional, try useOptionalUser instead."
     );

@@ -1,17 +1,23 @@
-import Board from "~/Components/Board";
-import Chat from "~/Components/Chat";
 import { Link } from "@remix-run/react";
-import { useSocket } from "~/context";
-import { SocketProvider } from "~/context";
+import { useEffect, useState } from "react";
 
 import { useOptionalUser } from "~/utils";
 
 
 
+
 const Chess = () => {
   const user = useOptionalUser();
-  const socket = useSocket();
+  const [uniqueGame, setUniqueGame] = useState<string>();
 
+  useEffect( () => {
+    if(!localStorage.getItem("guestUser")){
+        localStorage.setItem("guestUser", self.crypto.randomUUID());
+    }
+    console.log(`You are guest: ${localStorage.getItem("guestUser")}`);
+    setUniqueGame(self.crypto.randomUUID());
+  }, [])
+  
     return (
         <div className="min-h-screen bg-slate-800">
             {user ? (
@@ -19,7 +25,7 @@ const Chess = () => {
                     to="/notes"
                     className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
                   >
-                    View Notes for {user.email}
+                    View Notes for {user.username}
                   </Link>
                 ) : (
                   <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
@@ -37,17 +43,13 @@ const Chess = () => {
                     </Link>
                   </div>
                 )}
-            <div>
-                We are just getting started! Now! That makes more sense...
-            </div>
-            <button type="button" onClick={() => socket?.emit("chat message", "other string")}>
-          Send ping
-        </button>
-            <div className="flex flex-row w-full items-center justify-between">
-            <SocketProvider socket={socket}>
-                <Board socket={socket}/>
-                <Chat socket={socket}/>
-            </SocketProvider>
+            <div className="flex flex-row w-full items-center justify-center">
+                {
+                uniqueGame && 
+                <Link className="p-4 bg-green-500 text-white hover:bg-green-400 cursor-pointer text-center" to={`/play/${uniqueGame}`}> 
+                    Start A Game!
+                </Link>
+                }
             </div>
         </div>
     )

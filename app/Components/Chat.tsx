@@ -1,16 +1,18 @@
 import {useEffect, useState, useRef} from 'react';
 import invariant from 'tiny-invariant';
 import type { Socket } from "socket.io-client";
-import { useOptionalUser } from "~/utils";
+import { isUser } from "~/utils";
+import type { User, GuestUser } from "~/models/user.server";
+
 import type { chatMessage } from "~/types";
 
-const Chat = ({socket} : {socket : Socket | undefined}) => {
-    const user = useOptionalUser();
+const Chat = ({socket, user} : {socket : Socket | undefined, user : User | GuestUser}) => {
     const [chatItems, setChatItems] = useState<Array<chatMessage> | null>([]);
     const chatItemsHold = useRef<Array<chatMessage>>([]);
     const previous = useRef<Array<chatMessage>>([]);
     const socketConnection = useRef<string>("guest");
     let optimistic : NodeJS.Timeout;
+    const thisWindow = typeof window !== "undefined";
 
     const refreshDom = async () => {
         setChatItems(null);
@@ -26,10 +28,18 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
         let chat = target.chat as HTMLInputElement
         event.preventDefault();
             if(chat.value !== ''){
-            let message : chatMessage = {
-                name: user ? user.email : socketConnection.current, 
-                message:chat.value
-            };
+            let message : chatMessage;
+                if(isUser(user)){
+                    message = {
+                        name: user ? user.username : socketConnection.current, 
+                        message:chat.value
+                    };
+                }else{
+                    message = {
+                        name: user ? user.username.substring(0,10) : socketConnection.current.substring(0, 10),
+                        message: chat.value
+                    }
+                }
             previous.current = chatItemsHold.current;
             chatItemsHold.current.push(message);
             updateChat();
@@ -45,12 +55,17 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
     useEffect(() => {
         if (!socket) return;
 
-
         socket.on("connection", (data : string) => {
-            socketConnection.current = `Guest-${data}`;
+            if(thisWindow){
+                if(!localStorage.getItem("guestUser")){
+                    localStorage.setItem("guestUser", self.crypto.randomUUID());
+                }
+                let guest = localStorage.getItem("guestUser") as string;
+                socketConnection.current = `Guest-${guest.slice(-5)}`;
+            }
         })
+
         socket.on("chatStart", (data : string) => {
-            console.log('chat start')
             chatItemsHold.current.push({
                 name:"Server",
                 message: data
@@ -58,7 +73,6 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
             updateChat();
         })
         socket.on("boardStart", (data : string) => {
-            console.log("board start");
             chatItemsHold.current.push({
                 name: "Server",
                 message: data,
@@ -76,11 +90,15 @@ const Chat = ({socket} : {socket : Socket | undefined}) => {
     }, [socket]);
 
     useEffect(() => {
+        if(thisWindow){
+            if(!user && !localStorage.getItem("guestUser")){
+                localStorage.setItem("guestUser", self.crypto.randomUUID());
+            }
+        }
         if (!socket) return;
         socket.emit("chatLoad", true);
     }, []);
-    console.log(socketConnection.current);
-    console.log(chatItemsHold.current);
+
     return (
         <div className="bg-white w-96 h-96 flex flex-col justify-between rounded-xl shadow-xl">
             <div className="w-full h-4/5 flex flex-col items-center text-xs overflow-y-auto px-6 pt-2">

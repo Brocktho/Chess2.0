@@ -28,22 +28,46 @@ const io = new Server(httpServer);
 // from a client
 
 let boards = {};
-io.of(/\w\d/g).on("connection", (socket) => {
+io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/g).on("connection", (socket) => {
   const namespace = socket.nsp;
   const thisGame = namespace.name;
+
   if(boards[`${thisGame}`] === undefined){
     boards[`${thisGame}`] = {
-      players: 0,
-
+      players: [],
+      playerCount: 0,
     }
   }
-  console.log(boards);
-  boards[`${thisGame}`].players++
+
+  boards[`${thisGame}`].playerCount++
+
+  socket.on("thisPlayer", data => {
+    console.log("This player");
+    let isNew = true;
+    let position = 0;
+    boards[`${thisGame}`].players.every( player => {
+      if(player.name === data){
+        isNew = false;
+        position = player.position;
+        return false;
+      }
+    })
+    console.log(`Is new?: ${isNew}`);
+    if(isNew){
+      let newPlayer = {
+        name: data,
+        position: boards[`${thisGame}`].playerCount,
+      }
+      position = newPlayer.position;
+      boards[`${thisGame}`].players.push(newPlayer);
+    }
+    console.log(boards[`${thisGame}`].players);
+    socket.emit("chessPlayer", position);
+  })
+
   socket.emit("connection", socket.id);
-  socket.emit("chessPlayer", boards[`${thisGame}`].players);
   
   socket.on("chatMessage", (data) => {
-    console.log(data)
     socket.broadcast.emit("updateChat", data);
     io.to(socket.id).emit("updateWorked", true);
   })
@@ -52,6 +76,7 @@ io.of(/\w\d/g).on("connection", (socket) => {
     io.to(socket.id).emit("boardStart", "Chess Board is live!");
   });
   socket.on("chatLoad", (data) => {
+    console.log("chatLoad");
     if(data){
       io.to(socket.id).emit("chatStart", "Chat initialized");
     }
@@ -65,12 +90,13 @@ io.of(/\w\d/g).on("connection", (socket) => {
     socket.broadcast.emit("chessMove", response);
   })
   socket.on("disconnect", () => {
-    boards[`${thisGame}`].players--
+    boards[`${thisGame}`].playerCount--
   })
   
 });
 
-io.of('/play').on('connection', (socket) => {
+io.of(/^(?:\/play)$/).on('connection', (socket) => {
+  console.log('play connected');
   count++
   socket.emit("connection", socket.id);
   socket.emit("chessPlayer", count);

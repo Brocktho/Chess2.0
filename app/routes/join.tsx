@@ -6,10 +6,11 @@ import type {
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
+import { NoNoWords } from "~/verifier";
 
 import { getUserId, createUserSession } from "~/session.server";
 
-import { createUser, getUserByEmail } from "~/models/user.server";
+import { createUser, getUserByEmail, getUserByUsername } from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -22,14 +23,17 @@ interface ActionData {
   errors: {
     email?: string;
     password?: string;
+    username?: string;
   };
 }
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get("email");
+  const username = formData.get("username");
   const password = formData.get("password");
   const redirectTo = formData.get("redirectTo");
+  const niceTry = NoNoWords();
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -52,22 +56,46 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
+  if (typeof username !== "string") {
     return json<ActionData>(
-      { errors: { email: "A user already exists with this email" } },
+      { errors: { username: "Username is required"} },
       { status: 400 }
-    );
+    )
   }
+  let lowerCase = username.toLowerCase();
+  let isBad = false;
 
-  const user = await createUser(email, password);
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+  niceTry.forEach( bad => {
+    if (lowerCase.includes(bad)){
+      console.log("you did bad");
+      isBad = true;
+    }
   });
+  if(!isBad){
+    const existingUser1 = await getUserByEmail(email);
+    const existingUser2 = await getUserByUsername(username);
+    
+    if (existingUser1 || existingUser2) {
+      return json<ActionData>(
+        { errors: { email: "A user already exists with this email" } },
+        { status: 400 }
+      );
+    }
+
+    const user = await createUser(email, username, password);
+
+    return createUserSession({
+      request,
+      userId: user.id,
+      remember: false,
+      redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
+    });
+  }else{
+    return json<ActionData>(
+      { errors: { username: "We do not promote hate speech... Please remove slurs from your username" }},
+      { status: 400 }
+    )
+  }
 };
 
 export const meta: MetaFunction = () => {
@@ -82,6 +110,7 @@ export default function Join() {
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const usernameRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
@@ -118,6 +147,33 @@ export default function Join() {
               {actionData?.errors?.email && (
                 <div className="pt-1 text-red-700" id="email-error">
                   {actionData.errors.email}
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Username
+            </label>
+            <div className="mt-1">
+              <input
+                ref={usernameRef}
+                id="username"
+                required
+                autoFocus={true}
+                name="username"
+                type="text"
+                autoComplete="username"
+                aria-invalid={actionData?.errors?.username ? true : undefined}
+                aria-describedby="username-error"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+              />
+              {actionData?.errors?.username && (
+                <div className="pt-1 text-red-700" id="email-error">
+                  {actionData.errors.username}
                 </div>
               )}
             </div>
