@@ -39,9 +39,8 @@ io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
     }
   }
 
-  boards[`${thisGame}`].playerCount++
-
   socket.on("thisPlayer", data => {
+    boards[`${thisGame}`].playerCount++
     console.log("This player");
     let isNew = true;
     let position = 0;
@@ -53,6 +52,7 @@ io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
       }
     })
     console.log(`Is new?: ${isNew}`);
+    console.log(data);
     if(isNew){
       let newPlayer = {
         name: data,
