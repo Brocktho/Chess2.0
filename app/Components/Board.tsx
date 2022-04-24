@@ -469,16 +469,7 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
             let user : GuestUser = {
                 username : guest,        
             };
-            socket.on("connection", data => {
-                socket.emit("chess", "Chess Board checking in");
-                socket.emit("thisPlayer", user.username);
-            })
 
-        }else{
-            socket.on("connection", data => {
-                socket.emit("chess", "Chess Board checking in");
-                socket.emit("thisPlayer", user.username);
-            })
         }
     }else{
         if(!user){
@@ -501,8 +492,9 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
     useEffect(() => {
     if (!socket) return;
         socket.on("chessPlayer", data => {
-            console.log(data);
-            if(data === 1){
+            if(data === 0){
+                displayPlayer.current = "An error has occured, please refresh your page.";
+            }else if(data === 1){
                 displayPlayer.current = "You are playing the White Pieces";
             }else if(data === 2){
                 displayPlayer.current = "You are playing the Black Pieces";
@@ -527,7 +519,7 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
             {player ? 
             <h1 className="text-white">{displayPlayer.current}</h1>
             : 
-            <h1 className="text-white">Not Initialized</h1>
+            <h1 className="text-white">Not Initialized please refresh your browser</h1>
             }
             <div className="board bg-slate-800" onClick={async e => await refreshDom()}>
                 {blackPieces}

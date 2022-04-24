@@ -1,11 +1,12 @@
 const path = require("path");
 const express = require("express");
-const { createServer } = require("http");
-const { Server } = require("socket.io");
+const createServer = require("http");
+const Server = require("socket.io");
 const compression = require("compression");
 const morgan = require("morgan");
 const fs = require("fs");
-const { createRequestHandler } = require("@remix-run/express");
+const createRequestHandler = require("@remix-run/express");
+
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");
@@ -17,6 +18,8 @@ if (!fs.existsSync(BUILD_DIR)) {
 }
 
 const app = express();
+
+app.use()
 
 // You need to create the HTTP server from the Express app
 const httpServer = createServer(app);
@@ -41,15 +44,16 @@ io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
 
   socket.on("thisPlayer", data => {
     boards[`${thisGame}`].playerCount++
-    console.log("This player");
     let isNew = true;
     let position = 0;
-    boards[`${thisGame}`].players.every( player => {
+    boards[`${thisGame}`].players.every( (player, index) => {
       if(player.name === data){
         isNew = false;
         position = player.position;
+        player.socketId = socket.id
         return false;
       }
+      return true;
     })
     console.log(`Is new?: ${isNew}`);
     console.log(data);
@@ -57,12 +61,20 @@ io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
       let newPlayer = {
         name: data,
         position: boards[`${thisGame}`].playerCount,
+        socketId: socket.id,
       }
       position = newPlayer.position;
       boards[`${thisGame}`].players.push(newPlayer);
     }
-    console.log(boards[`${thisGame}`].players);
-    socket.emit("chessPlayer", position);
+    if(typeof position === "undefined"){
+      position = 0;
+      socket.emit("chessPlayer", position);
+    }else{
+      socket.emit("chessPlayer", position);
+    }
+    console.log(boards[`${thisGame}`]);
+    
+    
   })
 
   socket.emit("connection", socket.id);
@@ -90,7 +102,13 @@ io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
     socket.broadcast.emit("chessMove", response);
   })
   socket.on("disconnect", () => {
-    boards[`${thisGame}`].playerCount--
+    console.log(socket.id)
+    boards[`${thisGame}`].players.every( (player) => {
+      if(player.socketId === socket.id){
+        boards[`${thisGame}`].playerCount--
+        return false;
+      }
+    });
   })
   
 });
@@ -170,10 +188,10 @@ app.use(morgan("tiny"));
 app.all(
   "*",
   MODE === "production"
-    ? createRequestHandler({ build: require("../build") })
+    ? createRequestHandler({ build: from "../build") })
     : (req, res, next) => {
         purgeRequireCache();
-        const build = require("../build");
+        const build = from "../build");
         return createRequestHandler({ build, mode: MODE })(req, res, next);
       }
 );

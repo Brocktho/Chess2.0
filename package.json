@@ -4,6 +4,7 @@
   "description": "",
   "license": "",
   "sideEffects": false,
+  "type": "commonjs",
   "scripts": {
     "postinstall": "remix setup node",
     "build": "run-s build:*",
@@ -64,6 +65,7 @@
     "@testing-library/user-event": "^14.0.4",
     "@types/bcryptjs": "^2.4.2",
     "@types/eslint": "^8.4.1",
+    "@types/express": "^4.17.13",
     "@types/node": "^17.0.23",
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.14",
