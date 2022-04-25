@@ -4,7 +4,7 @@
   "description": "",
   "license": "",
   "sideEffects": false,
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "postinstall": "remix setup node",
     "build": "run-s build:*",
@@ -45,6 +45,7 @@
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
+    "eventemitter3": "^4.0.7",
     "express": "^4.17.3",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.15",

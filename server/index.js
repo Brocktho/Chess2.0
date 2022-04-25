@@ -1,11 +1,11 @@
-const path = require("path");
-const express = require("express");
-const createServer = require("http");
-const Server = require("socket.io");
-const compression = require("compression");
-const morgan = require("morgan");
-const fs = require("fs");
-const createRequestHandler = require("@remix-run/express");
+import path from "path";
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import compression  from "compression";
+import morgan  from "morgan";
+import fs from "fs";
+import { createRequestHandler } from "@remix-run/express";
 
 
 const MODE = process.env.NODE_ENV;
@@ -19,7 +19,7 @@ if (!fs.existsSync(BUILD_DIR)) {
 
 const app = express();
 
-app.use()
+
 
 // You need to create the HTTP server from the Express app
 const httpServer = createServer(app);
@@ -188,10 +188,10 @@ app.use(morgan("tiny"));
 app.all(
   "*",
   MODE === "production"
-    ? createRequestHandler({ build: from "../build") })
+    ? createRequestHandler({ build: require("./build") })
     : (req, res, next) => {
         purgeRequireCache();
-        const build = from "../build");
+        const build = require("./build");
         return createRequestHandler({ build, mode: MODE })(req, res, next);
       }
 );
