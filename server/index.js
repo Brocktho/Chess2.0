@@ -1,11 +1,11 @@
-import path from "path";
-import express from "express";
-import { createServer } from "http";
-import { Server } from "socket.io";
-import compression  from "compression";
-import morgan  from "morgan";
-import fs from "fs";
-import { createRequestHandler } from "@remix-run/express";
+const path = require("path");
+const express  = require("express");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const compression = require("compression");
+const morgan = require("morgan");
+const fs = require("fs");
+const { createRequestHandler } = require("@remix-run/express");
 
 
 const MODE = process.env.NODE_ENV;
@@ -19,16 +19,14 @@ if (!fs.existsSync(BUILD_DIR)) {
 
 const app = express();
 
-
-
-// You need to create the HTTP server from the Express app
+// You need to create the HTTP server require(the Express app
 const httpServer = createServer(app);
 
 // And then attach the socket.io server to the HTTP server
 const io = new Server(httpServer);
 
 // Then you can use `io` to listen the `connection` event and get a socket
-// from a client
+// require(a client
 
 let boards = {};
 io.of(/^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/g).on("connection", (socket) => {
@@ -147,7 +145,7 @@ io.of(/^(?:\/play)$/).on('connection', (socket) => {
 })
 
 io.of('/').on("connection", (socket) => {
-  // from this point you are on the WS connection with a specific client
+  // require(this point you are on the WS connection with a specific client
   console.log(socket.id, "connected");
 
   socket.emit("confirmation", "connected!");
@@ -188,15 +186,15 @@ app.use(morgan("tiny"));
 app.all(
   "*",
   MODE === "production"
-    ? createRequestHandler({ build: require("./build") })
+    ? createRequestHandler({ build: require("../build") })
     : (req, res, next) => {
         purgeRequireCache();
-        const build = require("./build");
+        const build = require("../build");
         return createRequestHandler({ build, mode: MODE })(req, res, next);
       }
 );
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 // instead of running listen on the Express app, do it on the HTTP server
 httpServer.listen(port, () => {

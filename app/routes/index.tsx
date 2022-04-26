@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
-
+import OfflineChessBoard from '~/Components/OfflineChessBoard';
 import { useOptionalUser } from "~/utils";
 
 
@@ -50,6 +50,7 @@ const Chess = () => {
                     Start A Game!
                 </Link>
                 }
+                <OfflineChessBoard/>
             </div>
         </div>
     )

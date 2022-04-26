@@ -29,13 +29,26 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
         x: -999,
         y: -999
     }
-    let lastMove = useRef<Movement>({
+    const [inCheck, setInCheck] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
+    const lastMove = useRef<Movement>({
         initialPosition: killCoord,
         endPosition: killCoord,
         special: false,
         initial: "none",
         color: 2,
     });
+
+    const checkKing = () => {
+        if(turns.current%2 === 0){
+            invariant(boardState.current, "must be true");
+            let kingPos = boardState.current.whitePieces[1][4].position;
+            let kingMap = (kingPos.y*8) + kingPos.x;
+            if(boardState.current.blackAttacks.includes(kingMap)){
+                setInCheck(true)
+            }
+        }
+    };
 
     const xToString = (x : number) => {
         switch(x){
@@ -61,11 +74,13 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
     const generatePositionMap = () => {
         invariant(boardState.current)
         boardState.current.whitePositions = [];
-        boardState.current.whitePieces.forEach((pieces : Array<Piece>) => {
+        boardState.current.whitePieces.forEach((pieces : Array<Piece>, index : number) => {
             pieces.forEach((piece : Piece) => {
                 if(piece.alive){
                     invariant(boardState.current, "bruh");
-                    boardState.current.whitePositions.push((piece.position.y*8) + piece.position.x);
+                    let pieceMap = (piece.position.y*8) + piece.position.x;
+                    boardState.current.whitePositions.push(pieceMap);
+                }else{
                 }
             })
         })
@@ -76,6 +91,96 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
                     invariant(boardState.current, "bruh");
                     boardState.current.blackPositions.push((piece.position.y*8) + piece.position.x);
                 }
+            })
+        })
+        boardState.current.whitePieces.forEach((pieces : Array<Piece>) => {
+            pieces.forEach((piece : Piece) => {
+                if(piece.alive){
+                    let possibleMoves : Array<Array<Coordinates>>  = piece.generateMoves();
+                    let trueMoves : Array<number> = [];
+                    let possibleAttacks : Array<Coordinates> = [];
+                    if(piece.generateAttacks){
+                        possibleAttacks  = piece.generateAttacks();
+                    }
+                    possibleMoves.forEach((chunk : Array<Coordinates>) => { 
+                        chunk.every((coord : Coordinates) => {
+                            invariant(boardState.current, "board exists");
+                            let pieceMap = ((coord.y*8) + coord.x);
+                            if(!boardState.current.whitePositions.includes(pieceMap)){
+                                if(piece.initial === "p"){
+                                    if(!boardState.current.blackPositions.includes(pieceMap)){
+                                        trueMoves.push(pieceMap);
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
+                                if(boardState.current.blackPositions.includes(pieceMap)){
+                                    trueMoves.push(pieceMap);
+                                    return false;
+                                }
+                                trueMoves.push(pieceMap);
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        })
+                    })
+                    if(piece.initial === "p"){
+                        possibleAttacks.forEach( (coord : Coordinates) => {
+                            invariant(boardState.current, "board exists");
+                            let pieceMap = ((coord.y*8) + coord.x);
+                            if(boardState.current.blackPositions.includes(pieceMap)){  
+                                trueMoves.push(pieceMap);
+                            }
+                        })
+                    }
+                    trueMoves.forEach(move => {
+                        invariant(boardState.current, "i swear");
+                        boardState.current.whiteAttacks.push(move);
+                    })
+                }
+            })
+        });
+        boardState.current.blackPieces.forEach( (pieces : Array<Piece>) => {
+            pieces.forEach((piece : Piece) => {
+                let possibleMoves : Array<Array<Coordinates>>  = piece.generateMoves();
+                let trueMoves : Array<number> = [];
+                let possibleAttacks : Array<Coordinates> = [];
+                if(piece.alive){
+                    if(piece.generateAttacks){
+                        possibleAttacks  = piece.generateAttacks();
+                    }
+                    possibleMoves.forEach((chunk : Array<Coordinates>) => {
+                        chunk.every((coord : Coordinates) => {
+                            invariant(boardState.current, "board exists");
+                            let pieceMap = ((coord.y*8) + coord.x);
+                            if(!boardState.current.blackPositions.includes(pieceMap)){
+                                if(piece.initial === "p"){
+                                    if(!boardState.current.whitePositions.includes(pieceMap)){
+                                        trueMoves.push(pieceMap);
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
+                            }
+                        })
+                    });
+                    if(piece.initial === "p"){
+                        possibleAttacks.forEach( (coord : Coordinates) => {
+                            invariant(boardState.current, "board exists");
+                            let pieceMap = ((coord.y*8) + coord.x);
+                            if(boardState.current.whitePositions.includes(pieceMap)){
+                                trueMoves.push(pieceMap);
+                            }
+                        })
+                    }
+                }
+                trueMoves.forEach(move => {
+                    invariant(boardState.current, "i swear");
+                    boardState.current.blackAttacks.push(move);
+                })
             })
         })
     }
@@ -119,6 +224,8 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
         let color = piece.color;
         if(boardState.current === null){
             let newBoard : Board = {
+                whiteAttacks: [],
+                blackAttacks: [],
                 whitePositions: [],
                 blackPositions: [],
                 whitePieces: [],
@@ -151,27 +258,18 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
     }
 
     const generatePieceMoves = (piece : Piece) => {
-        if(piece.alive){
+        if(piece.initial === "k"){
             let color = piece.color;
             let possibleMoves : Array<Array<Coordinates>>  = piece.generateMoves();
             let trueMoves : Array<Coordinates> = [];
-            let possibleAttacks : Array<Coordinates> = [];
-            if(piece.generateAttacks){
-                possibleAttacks  = piece.generateAttacks();
-            }
             possibleMoves.forEach((chunk : Array<Coordinates>) => { 
                 chunk.every((coord : Coordinates) => {
                     invariant(boardState.current, "board exists");
                     let pieceMap = ((coord.y*8) + coord.x);
                     if(color === 0){
                         if(!boardState.current.whitePositions.includes(pieceMap)){
-                            if(piece.initial === "p"){
-                                if(!boardState.current.blackPositions.includes(pieceMap)){
-                                    trueMoves.push(coord);
-                                    return true;
-                                }else{
-                                    return false;
-                                }
+                            if(boardState.current.blackAttacks.includes(pieceMap)){
+                                return false;
                             }
                             if(boardState.current.blackPositions.includes(pieceMap)){
                                 trueMoves.push(coord);
@@ -184,13 +282,8 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
                         }
                     }else{
                         if(!boardState.current.blackPositions.includes(pieceMap)){
-                            if(piece.initial === "p"){
-                                if(!boardState.current.whitePositions.includes(pieceMap)){
-                                    trueMoves.push(coord);
-                                    return true;
-                                }else{
-                                    return false;
-                                }
+                            if(boardState.current.whiteAttacks.includes(pieceMap)){
+                                return false;
                             }
                             if(boardState.current.whitePositions.includes(pieceMap)){
                                 trueMoves.push(coord);
@@ -204,39 +297,99 @@ const ChessBoard = ({ socket, user } : { socket : Socket | undefined, user : Use
                     }
                 })
             })
-            if(piece.initial === "p"){
-                possibleAttacks = possibleAttacks.map( (coord : Coordinates) => {
-                    invariant(boardState.current, "board exists");
-                    let pieceMap = ((coord.y*8) + coord.x);
-                    if(color === 0){
-                        if(boardState.current.blackPositions.includes(pieceMap)){  
-                            return coord;
-                        }
-                        if(lastMove.current.color === 1 && lastMove.current.special){
-                            if(lastMove.current.endPosition.y === coord.y+1){
-                                if(lastMove.current.endPosition.x === coord.x){
-                                    return coord;
-                                }
-                            }
-                        }
-                    }else{
-                        if(boardState.current.whitePositions.includes(pieceMap)){
-                            return coord;
-                        }
-                        if(lastMove.current.color === 0 && lastMove.current.special){
-                            if(lastMove.current.endPosition.y === coord.y-1){
-                                if(lastMove.current.endPosition.x === coord.x){
-                                    return coord;
-                                }
-                            }
-                        }
-                    }
-                    return killCoord
-                })
+            if(trueMoves.length === 0 && inCheck){
+                setGameOver(true);
+                return;
             }
-            return trueMoves.concat(possibleAttacks);
+            return trueMoves;
+        }else{
+            if(piece.alive && !inCheck){
+                let color = piece.color;
+                let possibleMoves : Array<Array<Coordinates>>  = piece.generateMoves();
+                let trueMoves : Array<Coordinates> = [];
+                let possibleAttacks : Array<Coordinates> = [];
+                if(piece.generateAttacks){
+                    possibleAttacks  = piece.generateAttacks();
+                }
+                possibleMoves.forEach((chunk : Array<Coordinates>) => { 
+                    chunk.every((coord : Coordinates) => {
+                        invariant(boardState.current, "board exists");
+                        let pieceMap = ((coord.y*8) + coord.x);
+                        if(color === 0){
+                            if(!boardState.current.whitePositions.includes(pieceMap)){
+                                if(piece.initial === "p"){
+                                    if(!boardState.current.blackPositions.includes(pieceMap)){
+                                        trueMoves.push(coord);
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
+                                if(boardState.current.blackPositions.includes(pieceMap)){
+                                    trueMoves.push(coord);
+                                    return false;
+                                }
+                                trueMoves.push(coord);
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        }else{
+                            if(!boardState.current.blackPositions.includes(pieceMap)){
+                                if(piece.initial === "p"){
+                                    if(!boardState.current.whitePositions.includes(pieceMap)){
+                                        trueMoves.push(coord);
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
+                                if(boardState.current.whitePositions.includes(pieceMap)){
+                                    trueMoves.push(coord);
+                                    return false;
+                                }
+                                trueMoves.push(coord);
+                                return true;
+                            }else{
+                                return false;
+                            }
+                        }
+                    })
+                })
+                if(piece.initial === "p"){
+                    possibleAttacks = possibleAttacks.map( (coord : Coordinates) => {
+                        invariant(boardState.current, "board exists");
+                        let pieceMap = ((coord.y*8) + coord.x);
+                        if(color === 0){
+                            if(boardState.current.blackPositions.includes(pieceMap)){  
+                                return coord;
+                            }
+                            if(lastMove.current.color === 1 && lastMove.current.special){
+                                if(lastMove.current.endPosition.y === coord.y+1){
+                                    if(lastMove.current.endPosition.x === coord.x){
+                                        return coord;
+                                    }
+                                }
+                            }
+                        }else{
+                            if(boardState.current.whitePositions.includes(pieceMap)){
+                                return coord;
+                            }
+                            if(lastMove.current.color === 0 && lastMove.current.special){
+                                if(lastMove.current.endPosition.y === coord.y-1){
+                                    if(lastMove.current.endPosition.x === coord.x){
+                                        return coord;
+                                    }
+                                }
+                            }
+                        }
+                        return killCoord
+                    })
+                }
+                return trueMoves.concat(possibleAttacks);
+            }
+            return [];
         }
-        return [];
     }
 
     const sendMove = async (color : number, arrayLocation : Coordinates, newLocation : Coordinates) => {

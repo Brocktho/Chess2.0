@@ -5,7 +5,7 @@ export type Coordinates = {
 
 export type Piece = {
     position: Coordinates,
-    moves: Array<Coordinates>,
+    moves?: Array<Coordinates>,
     color: number,
     update: Function,
     generateMoves: Function,
@@ -22,6 +22,8 @@ export type Notifier = {
 }
 
 export type Board = {
+    whiteAttacks: Array<number>,
+    blackAttacks: Array<number>,
     whitePositions: Array<number>,
     blackPositions: Array<number>,
     whitePieces: Array<Array<Piece>>,

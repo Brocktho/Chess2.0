@@ -4,7 +4,6 @@
   "description": "",
   "license": "",
   "sideEffects": false,
-  "type": "module",
   "scripts": {
     "postinstall": "remix setup node",
     "build": "run-s build:*",
