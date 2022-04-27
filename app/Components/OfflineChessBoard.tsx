@@ -617,10 +617,12 @@ const OfflineChessBoard = () => {
 
     useEffect(() => {
        async () => {
+           console.log("starting");
         setLoading(true);
         await generatePositionMap();
         checkKing();
         setLoading(false);
+        console.log("finished");
         }
     }, [turns.current])
 
