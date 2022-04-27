@@ -20,6 +20,7 @@ const OfflineChessBoard = () => {
     const [player, setPlayer] = useState<number | null>(null);
     const displayPlayer = useRef<string | null>(null);
     const boardState = useRef<Board | null>(null)
+    const [loading, setLoading] = useState(false);
     const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(null);
     const turns = useRef<number>(1);
 
@@ -69,7 +70,7 @@ const OfflineChessBoard = () => {
         }
     }
 
-    const generatePositionMap = () => {
+    const generatePositionMap = async () => {
         invariant(boardState.current)
         boardState.current.whitePositions = [];
         boardState.current.whitePieces.forEach((pieces : Array<Piece>, index : number) => {
@@ -299,6 +300,9 @@ const OfflineChessBoard = () => {
             if(trueMoves.length === 0 && inCheck){
                 setGameOver(true);
                 return;
+            }
+            while(loading){
+                //do nothing
             }
             return trueMoves;
         }else{
@@ -612,8 +616,12 @@ const OfflineChessBoard = () => {
     )
 
     useEffect(() => {
-        generatePositionMap();
+       async () => {
+        setLoading(true);
+        await generatePositionMap();
         checkKing();
+        setLoading(false);
+        }
     }, [turns.current])
 
     return(
