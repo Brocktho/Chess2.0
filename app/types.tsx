@@ -40,7 +40,6 @@ export type LocationQuery = {
 };
 
 export type Movement = {
-  initialPosition: Coordinates;
   endPosition: Coordinates;
   special?: boolean;
   initial: string;

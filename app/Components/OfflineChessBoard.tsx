@@ -32,7 +32,6 @@ const OfflineChessBoard = () => {
   };
 
   const lastMove = useRef<Movement>({
-    initialPosition: killCoord,
     endPosition: killCoord,
     special: false,
     initial: "none",
@@ -236,41 +235,48 @@ const OfflineChessBoard = () => {
     });
   };
 
-  const returnCapture = async (coordMap: number, color: number) => {
-    invariant(boardState.current, "Board must be initialized");
-    let found = false;
-    if (color === 0) {
-      boardState.current.blackPieces.forEach((pieces) => {
-        if (!found) {
-          pieces.forEach((piece: Piece) => {
-            if (!found) {
-              if (piece.position.y * 8 + piece.position.x === coordMap) {
-                piece.alive = false;
-                piece.update(killCoord);
-                piece.position = killCoord;
-                found = true;
-              }
-            }
-          });
+  const returnCaptureBlack = async (coordMap : number) => {
+    boardState.current?.blackPieces.every( (pieces, y)  => {
+      pieces.every( (piece, x) => {
+        let attackMap = ( piece.position.y * 8 ) + piece.position.x;
+        console.log(piece);
+        console.log(attackMap);
+        if( !(attackMap === coordMap) ){
+          return true;
+        }else{
+          console.log("found piece:");
+          piece.alive = false;
+          piece.update(killCoord);
+          piece.position = killCoord;
+          let remove = boardState.current?.blackPositions.indexOf(attackMap) as number;
+          boardState.current?.blackPositions.splice(remove,1);
+          boardState.current?.blackPieces[y].splice(x,1);
+          return false;
         }
       });
-    } else {
-      boardState.current.whitePieces.forEach((pieces) => {
-        if (!found) {
-          pieces.forEach((piece: Piece) => {
-            if (!found) {
-              if (piece.position.y * 8 + piece.position.x === coordMap) {
-                piece.alive = false;
-                piece.update(killCoord);
-                piece.position = killCoord;
-                found = true;
-              }
-            }
-          });
+      return true;
+    });
+  }
+
+  const returnCaptureWhite = async (coordMap : number) => {
+    boardState.current?.whitePieces.every( (pieces, y)  => {
+      pieces.every( (piece, x) => {
+        let attackMap = ( piece.position.y * 8 ) + piece.position.x;
+        if( !(attackMap === coordMap) ){
+          return true;
+        }else{
+          piece.alive = false;
+          piece.update(killCoord);
+          piece.position = killCoord;
+          let remove = boardState.current?.whitePositions.indexOf(attackMap) as number;
+          boardState.current?.whitePositions.splice(remove,1);
+          boardState.current?.whitePieces[y].splice(x,1);
+          return false;
         }
       });
-    }
-  };
+      return true;
+    });
+  }
 
   const registerPiece = (piece: Piece) => {
     let color = piece.color;
@@ -314,7 +320,7 @@ const OfflineChessBoard = () => {
   };
 
   const generateWhitePieceMoves = (piece: Piece) => {
-    if (piece.color === 0) {
+    if (piece.color === 0 && turns % 2 === 1) {
       if (piece.initial === "k") {
         let possibleMoves: Array<Array<Coordinates>> = piece.generateMoves();
         let trueMoves: Array<Coordinates> = [];
@@ -344,31 +350,36 @@ const OfflineChessBoard = () => {
           let trueMovesBuffer: Array<Coordinates> = [];
           let trueMoves: Array<Coordinates> = [];
           let piecePosition = piece.position.y * 8 + piece.position.x;
+
           possibleMoves.forEach((chunk: Array<Coordinates>) => {
             chunk.every((coord: Coordinates) => {
               invariant(boardState.current, "board exists");
               let pieceMap = coord.y * 8 + coord.x;
               if (Array.isArray(boardState.current.attackOnWk[0])) {
                 let criticalPiece = false;
+                let blockerList : Array<number> = [];
                 boardState.current.attackOnWk.forEach((attackVectors) => {
                   attackVectors.forEach((attackMove) => {
+                    let blockers = 0;
                     let attackMap = attackMove.y * 8 + attackMove.x;
+                    if(boardState.current?.whitePositions.includes(attackMap)){
+                      blockers++;
+                    }
                     if (attackMap === pieceMap) {
                       trueMovesBuffer.push(coord);
                     }
                     if (attackMap === piecePosition) {
                       criticalPiece = true;
+                      blockers++;
                     }
                   });
                 });
-                console.log(criticalPiece);
-                if (criticalPiece) {
-                  console.log("decided to say fuck you im quitting anyway");
+                if (criticalPiece && Math.min(...blockerList) < 2) {
                   return false;
                 }
               }
+
               if (!boardState.current.whitePositions.includes(pieceMap)) {
-                console.log(pieceMap);
                 if (piece.initial === "p") {
                   if (!boardState.current.blackPositions.includes(pieceMap)) {
                     trueMoves.push(coord);
@@ -484,14 +495,11 @@ const OfflineChessBoard = () => {
                     }
                   });
                 });
-                console.log(criticalPiece);
                 if (criticalPiece) {
-                  console.log("decided to say fuck you im quitting anyway");
                   return false;
                 }
               }
               if (!boardState.current.blackPositions.includes(pieceMap)) {
-                console.log(pieceMap);
                 if (piece.initial === "p") {
                   if (!boardState.current.whitePositions.includes(pieceMap)) {
                     trueMoves.push(coord);
@@ -559,128 +567,148 @@ const OfflineChessBoard = () => {
     }
   };
 
-  const sendMove = async (
-    color: number,
-    arrayLocation: Coordinates,
-    newLocation: Coordinates
+  const sendWhiteMove = async(
+    callingPiece: Piece,
+    newLocation: Coordinates,
   ) => {
     invariant(boardState.current, "Board State must be initialized");
-    let callingPiece: Piece | null = null;
-    if (color === 0 && turns % 2 === 1) {
-      callingPiece =
-        boardState.current.whitePieces[arrayLocation.y][arrayLocation.x];
+    let coordMap = ( newLocation.y * 8 ) + newLocation.x;
+    if(turns % 2 === 1){
       let pieceMap = callingPiece.position.y * 8 + callingPiece.position.x;
-      boardState.current.whitePositions.indexOf(pieceMap);
+      let remove = boardState.current.whitePositions.indexOf(pieceMap);
+      boardState.current.whitePositions.splice(remove,1);
+      boardState.current.whitePositions.push(coordMap);
     }
-    if (color === 1 && turns % 2 === 0) {
-      callingPiece =
-        boardState.current.blackPieces[arrayLocation.y][arrayLocation.x];
-    }
-    invariant(callingPiece, "Piece must be found");
     await refreshDom();
     if (callingPiece.initial === "p") {
       if (lastMove.current.special) {
-        if (color === 0) {
           if (newLocation.y + 1 === lastMove.current.endPosition.y) {
             if (newLocation.x === lastMove.current.endPosition.x) {
-              await returnCapture(
+              await returnCaptureBlack(
                 lastMove.current.endPosition.y * 8 +
                   lastMove.current.endPosition.x,
-                color
-              );
-            }
-          }
-        } else {
-          if (newLocation.y - 1 === lastMove.current.endPosition.y) {
-            if (newLocation.x === lastMove.current.endPosition.x) {
-              await returnCapture(
-                lastMove.current.endPosition.y * 8 +
-                  lastMove.current.endPosition.x,
-                color
-              );
-            }
+            );
           }
         }
       }
     }
+
     lastMove.current = {
-      initialPosition: callingPiece.position,
       endPosition: newLocation,
       special: callingPiece.special,
       initial: callingPiece.initial,
       color: callingPiece.color,
     };
-
     callingPiece.position = newLocation;
     callingPiece.special = false;
 
-    let coordMap = callingPiece.position.y * 8 + callingPiece.position.x;
-    if (
-      boardState.current.whitePositions.includes(coordMap) ||
-      boardState.current.blackPositions.includes(coordMap)
-    ) {
-      await returnCapture(coordMap, color);
+    if ( boardState.current.blackPositions.includes(coordMap) ) {
+      console.log('captured black');
+      await returnCaptureBlack(coordMap);
     }
     if (callingPiece.initial === "k") {
-      if (color === 0) {
-        boardState.current.whiteKing = coordMap;
-      } else {
-        boardState.current.blackKing = coordMap;
-      }
+      boardState.current.whiteKing = coordMap;
     }
     callingPiece.update(newLocation);
     setTurns(turns + 1);
-  };
+  }
 
-  const receiveAlert = async (event: React.MouseEvent, notified: Notifier) => {
-    await refreshDom();
-    let color = notified.color;
-    invariant(boardState.current, "Board must be initialized");
-    let moves: Array<Coordinates>;
-    let callingPiece: Piece;
-    if (color === 0 && turns % 2 === 1) {
-      callingPiece =
-        boardState.current.whitePieces[notified.arrayLocation.y][
-          notified.arrayLocation.x
-        ];
-    } else if (color === 1 && turns % 2 === 0) {
-      callingPiece =
-        boardState.current.blackPieces[notified.arrayLocation.y][
-          notified.arrayLocation.x
-        ];
-    } else {
-      callingPiece = {
-        position: killCoord,
-        moves: [],
-        color: 2,
-        update: function () {},
-        generateMoves: () => {
-          return killCoord;
-        },
-        alive: false,
-        arrayLocation: killCoord,
-        initial: "none",
+  const sendBlackMove = async(
+    callingPiece: Piece,
+    newLocation: Coordinates,
+  ) => {
+    invariant(boardState.current, "Board State must be initialized");
+    let coordMap = ( newLocation.y * 8 ) + newLocation.x;
+    if(turns % 2 === 0){
+      let pieceMap = callingPiece.position.y * 8 + callingPiece.position.x;
+      let remove = boardState.current.blackPositions.indexOf(pieceMap);
+      boardState.current.blackPositions.splice(remove,1);
+      boardState.current.blackPositions.push(coordMap);
+      await refreshDom();
+      if (callingPiece.initial === "p") {
+        if (lastMove.current.special) {
+            if (newLocation.y - 1 === lastMove.current.endPosition.y) {
+              if (newLocation.x === lastMove.current.endPosition.x) {
+                await returnCaptureWhite(
+                  lastMove.current.endPosition.y * 8 +
+                    lastMove.current.endPosition.x,
+              );
+            }
+          }
+        }
+      }
+
+      lastMove.current = {
+        endPosition: newLocation,
+        special: callingPiece.special,
+        initial: callingPiece.initial,
+        color: 1,
       };
-    }
-    if (color === 0) {
-      moves = generateWhitePieceMoves(callingPiece) as Array<Coordinates>;
-    } else {
-      moves = generateBlackPieceMoves(callingPiece) as Array<Coordinates>;
-    }
-    let bubbles = moves.map((move, index) => {
-      return (
-        <MoveSpot
-          initialPosition={move}
-          key={`MoveSpot${index}`}
-          thisPiece={callingPiece}
-          sendMove={sendMove}
-        />
-      );
-    });
-    setMoveBubbles(bubbles);
-  };
 
-  const blackPieces = Array.apply(null, Array(2)).map((a, y) => {
+      callingPiece.position = newLocation;
+      callingPiece.special = false;
+
+      if ( boardState.current.whitePositions.includes(coordMap) ) {
+        await returnCaptureWhite(coordMap);
+      }
+      if (callingPiece.initial === "k") {
+        boardState.current.blackKing = coordMap;
+      }
+      callingPiece.update(newLocation);
+      setTurns(turns + 1);
+    }
+  }
+
+  const receiveWhiteAlert = async ( piece : Piece ) => {
+    await refreshDom();
+    if( turns % 2 === 1){
+      let moves = generateWhitePieceMoves(piece) as Array<Coordinates>;
+      let bubbles = moves.map( move => {
+        return (
+          <MoveSpot
+            initialPosition={move}
+            thisPiece={piece}
+            sendMove={sendWhiteMove}
+          />
+        )
+      });
+      setMoveBubbles(bubbles);
+    }
+    return;
+  }
+
+  const receiveBlackAlert = async ( piece : Piece) => {
+    await refreshDom();
+    if( turns % 2 === 0){
+      let moves = generateBlackPieceMoves(piece) as Array<Coordinates>;
+      let bubbles = moves.map( move => {
+        return (
+          <MoveSpot
+            initialPosition={move}
+            thisPiece={piece}
+            sendMove={sendBlackMove}
+            />
+        )
+      });
+      setMoveBubbles(bubbles);
+    }
+  }
+
+  useEffect(() => {
+    //generatePositionMap();
+    //checkKing();
+    console.log(boardState.current?.blackPositions);
+    console.log(boardState.current?.whitePositions);
+  }, [turns]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {turns && <h1 className="text-white">{turns}</h1>}
+      <div
+        className="board bg-slate-800"
+        onClick={async (e) => await refreshDom()}
+      >
+        { Array.apply(null, Array(2)).map((a, y) => {
     return Array.apply(null, Array(8)).map((b, x) => {
       let thisPosition: Coordinates = {
         x: x,
@@ -692,7 +720,7 @@ const OfflineChessBoard = () => {
             <BlackPawn
               initialPosition={thisPosition}
               updateBoard={registerPiece}
-              notifyBoard={receiveAlert}
+              notifyBoard={receiveBlackAlert}
               key={`BlackPawn${x}`}
             />
           );
@@ -703,7 +731,7 @@ const OfflineChessBoard = () => {
                 <BlackRook
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackRook${x}`}
                 />
               );
@@ -712,7 +740,7 @@ const OfflineChessBoard = () => {
                 <BlackHorse
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackHorse${x}`}
                 />
               );
@@ -721,7 +749,7 @@ const OfflineChessBoard = () => {
                 <BlackBishop
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackBishop${x}`}
                 />
               );
@@ -730,7 +758,7 @@ const OfflineChessBoard = () => {
                 <BlackQueen
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackQueen${x}`}
                 />
               );
@@ -739,7 +767,7 @@ const OfflineChessBoard = () => {
                 <BlackKing
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackKing${x}`}
                 />
               );
@@ -748,7 +776,7 @@ const OfflineChessBoard = () => {
                 <BlackBishop
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackBishop${x}`}
                 />
               );
@@ -757,7 +785,7 @@ const OfflineChessBoard = () => {
                 <BlackHorse
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackHorse${x}`}
                 />
               );
@@ -766,7 +794,7 @@ const OfflineChessBoard = () => {
                 <BlackRook
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackRook${x}`}
                 />
               );
@@ -775,7 +803,7 @@ const OfflineChessBoard = () => {
                 <BlackPawn
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveBlackAlert}
                   key={`BlackPawn${x}`}
                 />
               );
@@ -785,14 +813,14 @@ const OfflineChessBoard = () => {
             <BlackPawn
               initialPosition={thisPosition}
               updateBoard={registerPiece}
-              notifyBoard={receiveAlert}
+              notifyBoard={receiveBlackAlert}
               key={`BlackPawn${x}`}
             />
           );
       }
     });
-  });
-  const whitePieces = Array.apply(null, Array(2)).map((a, y) => {
+  }) }
+        {Array.apply(null, Array(2)).map((a, y) => {
     return Array.apply(null, Array(8)).map((b, x) => {
       let thisPosition: Coordinates = {
         x: x,
@@ -804,7 +832,7 @@ const OfflineChessBoard = () => {
             <WhitePawn
               initialPosition={thisPosition}
               updateBoard={registerPiece}
-              notifyBoard={receiveAlert}
+              notifyBoard={receiveWhiteAlert}
               key={`WhitePawn${x}`}
             />
           );
@@ -815,7 +843,7 @@ const OfflineChessBoard = () => {
                 <WhiteRook
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteRook${x}`}
                 />
               );
@@ -824,7 +852,7 @@ const OfflineChessBoard = () => {
                 <WhiteHorse
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteHorse${x}`}
                 />
               );
@@ -833,7 +861,7 @@ const OfflineChessBoard = () => {
                 <WhiteBishop
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteBishop${x}`}
                 />
               );
@@ -842,7 +870,7 @@ const OfflineChessBoard = () => {
                 <WhiteQueen
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteQueen${x}`}
                 />
               );
@@ -851,7 +879,7 @@ const OfflineChessBoard = () => {
                 <WhiteKing
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteKing${x}`}
                 />
               );
@@ -860,7 +888,7 @@ const OfflineChessBoard = () => {
                 <WhiteBishop
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteBishop${x}`}
                 />
               );
@@ -869,7 +897,7 @@ const OfflineChessBoard = () => {
                 <WhiteHorse
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteHorse${x}`}
                 />
               );
@@ -878,32 +906,14 @@ const OfflineChessBoard = () => {
                 <WhiteRook
                   initialPosition={thisPosition}
                   updateBoard={registerPiece}
-                  notifyBoard={receiveAlert}
+                  notifyBoard={receiveWhiteAlert}
                   key={`WhiteRook${x}`}
                 />
               );
           }
       }
     });
-  });
-
-  useEffect(() => {
-    generatePositionMap();
-    checkKing();
-  }, [turns]);
-
-  console.log(boardState.current?.attackOnBk);
-  console.log(boardState.current?.attackOnWk);
-
-  return (
-    <div className="flex flex-col gap-2">
-      {turns && <h1 className="text-white">{turns}</h1>}
-      <div
-        className="board bg-slate-800"
-        onClick={async (e) => await refreshDom()}
-      >
-        {blackPieces}
-        {whitePieces}
+  })}
         {moveBubbles}
       </div>
     </div>

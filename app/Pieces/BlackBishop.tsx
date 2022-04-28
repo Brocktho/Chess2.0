@@ -88,7 +88,7 @@ const BlackBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPositio
     return(
         <button className = {myClass} onClick={ e => { 
             e.stopPropagation();
-            notifyBoard(e, thisNotifier)
+            notifyBoard(thisBishop);
         }}/>
     )
 }

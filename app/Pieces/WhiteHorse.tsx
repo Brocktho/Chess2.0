@@ -136,7 +136,7 @@ const WhiteHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
     return(
         <button className = {myClass} onClick={ e => { 
             e.stopPropagation();
-            notifyBoard(e, thisNotifier)
+            notifyBoard(thisHorse);
         }}/>
     )
 }
