@@ -25,8 +25,8 @@ import { SocketProvider } from "./context";
 export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: tailwindStylesheetUrl },
-    { rel: "stylesheet", href: extraCss }
-];
+    { rel: "stylesheet", href: extraCss },
+  ];
 };
 
 export const meta: MetaFunction = () => ({
@@ -71,7 +71,7 @@ export default function App() {
       </head>
       <body className="h-full">
         <SocketProvider socket={socket}>
-            <Outlet />
+          <Outlet />
         </SocketProvider>
         <ScrollRestoration />
         <Scripts />

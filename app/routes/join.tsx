@@ -10,7 +10,11 @@ import { NoNoWords } from "~/verifier";
 
 import { getUserId, createUserSession } from "~/session.server";
 
-import { createUser, getUserByEmail, getUserByUsername } from "~/models/user.server";
+import {
+  createUser,
+  getUserByEmail,
+  getUserByUsername,
+} from "~/models/user.server";
 import { validateEmail } from "~/utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -58,23 +62,23 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (typeof username !== "string") {
     return json<ActionData>(
-      { errors: { username: "Username is required"} },
+      { errors: { username: "Username is required" } },
       { status: 400 }
-    )
+    );
   }
   let lowerCase = username.toLowerCase();
   let isBad = false;
 
-  niceTry.forEach( bad => {
-    if (lowerCase.includes(bad)){
+  niceTry.forEach((bad) => {
+    if (lowerCase.includes(bad)) {
       console.log("you did bad");
       isBad = true;
     }
   });
-  if(!isBad){
+  if (!isBad) {
     const existingUser1 = await getUserByEmail(email);
     const existingUser2 = await getUserByUsername(username);
-    
+
     if (existingUser1 || existingUser2) {
       return json<ActionData>(
         { errors: { email: "A user already exists with this email" } },
@@ -90,11 +94,16 @@ export const action: ActionFunction = async ({ request }) => {
       remember: false,
       redirectTo: typeof redirectTo === "string" ? redirectTo : "/",
     });
-  }else{
+  } else {
     return json<ActionData>(
-      { errors: { username: "We do not promote hate speech... Please remove slurs from your username" }},
+      {
+        errors: {
+          username:
+            "We do not promote hate speech... Please remove slurs from your username",
+        },
+      },
       { status: 400 }
-    )
+    );
   }
 };
 

@@ -18,10 +18,10 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-    invariant(params.slug, "Game Room not found");
-    const gameSocket : LoaderData = {
-        socketName: params.slug
-    }
+  invariant(params.slug, "Game Room not found");
+  const gameSocket: LoaderData = {
+    socketName: params.slug,
+  };
   return json<LoaderData>(gameSocket);
 };
 
@@ -29,24 +29,24 @@ export default function GameRoom() {
   const data = useLoaderData() as LoaderData;
   const [socket, setSocket] = useState<Socket | undefined>();
   const user = useOptionalUser();
-  const [guestUser, setGuestUser] = useState<GuestUser>({username: ""});
+  const [guestUser, setGuestUser] = useState<GuestUser>({ username: "" });
   const thisWindow = typeof window !== "undefined";
   const quickGuest = useRef<string>();
-  
-  useEffect( () => {
+
+  useEffect(() => {
     const socket = io(`/${data.socketName}`);
     setSocket(socket);
-    if(thisWindow){
-      if(!user && !localStorage.getItem("guestUser")){
+    if (thisWindow) {
+      if (!user && !localStorage.getItem("guestUser")) {
         localStorage.setItem("guestUser", self.crypto.randomUUID());
       }
-      let guest = `Guest-${localStorage.getItem("guestUser") as string}`; 
+      let guest = `Guest-${localStorage.getItem("guestUser") as string}`;
       setGuestUser({
         username: guest,
-      })
+      });
       quickGuest.current = guest;
-    }else{
-      if(!user){
+    } else {
+      if (!user) {
         setGuestUser({
           username: "Temporary Guest",
         });
@@ -56,13 +56,13 @@ export default function GameRoom() {
 
     socket.emit("thisPlayer", user ? user.username : quickGuest.current);
     return () => {
-        socket.close();
-    }
-  }, [])
+      socket.close();
+    };
+  }, []);
   return (
     <SocketProvider socket={socket}>
-        <Board socket={socket} user={user ? user : guestUser}/>
-        <Chat socket={socket} user={user ? user : guestUser}/>
+      <Board socket={socket} user={user ? user : guestUser} />
+      <Chat socket={socket} user={user ? user : guestUser} />
     </SocketProvider>
   );
 }
