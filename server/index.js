@@ -26,7 +26,6 @@ const io = new Server(httpServer);
 
 // Then you can use `io` to listen the `connection` event and get a socket
 // require(a client
-
 let boards = {};
 io.of(
   /^\/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/g
@@ -106,39 +105,6 @@ io.of(
         return false;
       }
     });
-  });
-});
-
-io.of(/^(?:\/play)$/).on("connection", (socket) => {
-  console.log("play connected");
-  count++;
-  socket.emit("connection", socket.id);
-  socket.emit("chessPlayer", count);
-
-  socket.on("chatMessage", (data) => {
-    console.log(data);
-    socket.broadcast.emit("updateChat", data);
-    io.to(socket.id).emit("updateWorked", true);
-  });
-  socket.on("chess", (data) => {
-    console.log(socket.id, data);
-    io.to(socket.id).emit("boardStart", "Chess Board is live!");
-  });
-  socket.on("chatLoad", (data) => {
-    if (data) {
-      io.to(socket.id).emit("chatStart", "Chat initialized");
-    }
-  });
-  socket.on("sendMove", (data) => {
-    let response = {
-      location: data.access.location,
-      color: data.access.color,
-      newLocation: data.nextLocation,
-    };
-    socket.broadcast.emit("chessMove", response);
-  });
-  socket.on("disconnect", () => {
-    count--;
   });
 });
 
