@@ -1,22 +1,21 @@
-import { useActionData } from '@remix-run/react';
-import { useState, useEffect, useRef } from 'react';
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useState, useEffect} from 'react';
+import { Coordinates, Piece } from "~/types";
 
 const WhiteBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece wb `);
-    const position = useRef(initialPosition);
+    const [position, setPosition] = useState(initialPosition);
     const start = {
         x: initialPosition.x,
         y: (initialPosition.y-6),
     }
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wb square${newLocation.y}${newLocation.x}`;
-        position.current = newLocation;
+        setPosition(newLocation);
         setMyClass(newClass);
     }
     const bishopMoves = () => {
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let currentX = px;
         let currentY = py;
         let possibleMoves : Array<Array<Coordinates>> = [];
@@ -69,8 +68,9 @@ const WhiteBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPositio
         chunk = [];
         return possibleMoves;
     }
+
     const thisBishop : Piece = {
-        position: position.current,
+        position: position,
         moves: [],
         color: 0,
         update: getUpdated,
@@ -79,13 +79,9 @@ const WhiteBishop = ({initialPosition, updateBoard, notifyBoard}:{initialPositio
         initial: "b",
         alive: true,
     }
-    const thisNotifier : Notifier = {
-        arrayLocation: start,
-        color: 0,
-    }
 
     useEffect(() => {
-        setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        setMyClass(`${myClass} square${position.y}${position.x}`);
         updateBoard(thisBishop);
     },[])
 

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Coordinates, Piece, Notifier } from "~/types";
+import type { Coordinates, Piece } from "~/types";
 
 const WhiteKing = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece wk `);
-    const position = useRef(initialPosition);
+    const [position, setPosition] = useState(initialPosition);
     const specialMove = useRef<boolean>(true);
     const start = {
         x: initialPosition.x,
@@ -11,13 +11,13 @@ const WhiteKing = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
     }
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wk square${newLocation.y}${newLocation.x}`;
-        position.current = newLocation;
+        setPosition(newLocation);
         specialMove.current = false;
         setMyClass(newClass);
     }
     const kingMoves = () => {
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let possibleMoves : Array<Array<Coordinates>> = [];
         let chunk : Array<Coordinates> = [];
         if(py < 7){
@@ -113,8 +113,9 @@ const WhiteKing = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         }
         return possibleMoves;
     }
+
     const thisKing : Piece = {
-        position: position.current,
+        position: position,
         moves: [],
         color: 0,
         update: getUpdated,
@@ -124,13 +125,9 @@ const WhiteKing = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         alive: true,
         special: specialMove.current,
     }
-    const thisNotifier : Notifier = {
-        arrayLocation: start,
-        color: 0,
-    }
 
     useEffect(() => {
-        setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        setMyClass(`${myClass} square${position.y}${position.x}`);
         updateBoard(thisKing);
     },[])
 

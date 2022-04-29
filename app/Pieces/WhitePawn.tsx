@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Coordinates, Piece, Notifier } from "~/types";
+import type { Coordinates, Piece } from "~/types";
 
 const WhitePawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece wp `);
-    const position = useRef<Coordinates>(initialPosition);
+    const [position, setPosition] = useState<Coordinates>(initialPosition);
     const specialMove = useRef<boolean>(true);
 
     const start = {
@@ -14,13 +14,13 @@ const WhitePawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wp square${newLocation.y}${newLocation.x}`;
         specialMove.current = false;
-        position.current = newLocation;
+        setPosition(newLocation);
         setMyClass(newClass);
     }
 
     const whitePawnMoves = () => {
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let possibleMoves : Array<Array<Coordinates>> = [];
         let chunk : Array<Coordinates> = [];
         chunk.push({
@@ -37,8 +37,8 @@ const WhitePawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         return possibleMoves;
     }
     const whitePawnAttacks = () => {
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let possibleAttacks : Array<Coordinates> = [];
         possibleAttacks.push({
             x: px-1,
@@ -50,17 +50,17 @@ const WhitePawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         })
         return possibleAttacks;
     }
-
+    
     const thisPawn : Piece = {
-        position: position.current,
+        position: position,
         moves: [
             {
-                x:position.current.x,
-                y:position.current.y-1,
+                x:position.x,
+                y:position.y-1,
             },
             {
-                x:position.current.x,
-                y:position.current.y-2,
+                x:position.x,
+                y:position.y-2,
             }
         ],
         color: 0,
@@ -72,13 +72,9 @@ const WhitePawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
         alive: true,
         special: specialMove.current,
     };
-    const thisNotifier : Notifier = {
-        arrayLocation: start,
-        color: 0,
-    }
 
     useEffect(() => {
-        setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        setMyClass(`${myClass} square${position.y}${position.x}`);
         updateBoard(thisPawn);
     },[])
 

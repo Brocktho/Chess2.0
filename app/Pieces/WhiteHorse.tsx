@@ -1,26 +1,23 @@
-import { useState, useEffect, useRef } from 'react';
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useState, useEffect } from 'react';
+import type { Coordinates, Piece } from "~/types";
 
 const WhiteHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece wh `);
-    const position = useRef(initialPosition);
+    const [position, setPosition] = useState(initialPosition);
     let start = {
         x:initialPosition.x,
         y:(initialPosition.y-6),
     }
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wh square${newLocation.y}${newLocation.x}`;
-        position.current = newLocation;
+        setPosition(newLocation);
         setMyClass(newClass);
     }
-    let thisNotifier = {
-        arrayLocation: start,
-        color: 0
-    }
+
     let HorseMoves = () => {
         let possibleMoves : Array<Array<Coordinates>> = [];
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let possibleX : Array<number>= [];
         let possibleY : Array<number>= [];
         switch (px){
@@ -109,15 +106,15 @@ const WhiteHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
     }
 
     let thisHorse : Piece = {
-        position: position.current,
+        position: position,
         moves: [
             {
-                x: position.current.x-1,
-                y: position.current.y-2,
+                x: position.x-1,
+                y: position.y-2,
             },
             {
-                x: position.current.x+1,
-                y: position.current.y-2,
+                x: position.x+1,
+                y: position.y-2,
             }
         ],
         color: 0,
@@ -129,7 +126,7 @@ const WhiteHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
     }
 
     useEffect(() => {
-        setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        setMyClass(`${myClass} square${position.y}${position.x}`);
         updateBoard(thisHorse);
     },[])
 

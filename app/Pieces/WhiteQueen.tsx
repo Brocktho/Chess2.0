@@ -1,21 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useState, useEffect } from 'react';
+import type { Coordinates, Piece } from "~/types";
 
 const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
     const [myClass, setMyClass] = useState(`piece wq `);
-    const position = useRef(initialPosition);
+    const [position, setPosition] = useState(initialPosition);
     const start = {
         x: initialPosition.x,
         y: (initialPosition.y-6),
     }
     const getUpdated = (newLocation : Coordinates) => {
         let newClass = `piece wq square${newLocation.y}${newLocation.x}`;
-        position.current = newLocation;
+        setPosition(newLocation);
         setMyClass(newClass);
     }
     const queenMoves = () => {
-        let px = position.current.x;
-        let py = position.current.y;
+        let px = position.x;
+        let py = position.y;
         let possibleMoves : Array<Array<Coordinates>> = [];
         let chunk : Array<Coordinates> = [];
         while(px < 7 && py < 7){
@@ -28,8 +28,8 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
-        py = position.current.y;
+        px = position.x;
+        py = position.y;
         while(px < 7 && py > 0){
             px++
             py--
@@ -40,8 +40,8 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
-        py = position.current.y;
+        px = position.x;
+        py = position.y;
         while(px > 0 && py < 7){
             px--
             py++
@@ -52,8 +52,8 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
-        py = position.current.y;
+        px = position.x;
+        py = position.y;
         while(px > 0 && py > 0){
             px--
             py--
@@ -64,8 +64,8 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
-        py = position.current.y;
+        px = position.x;
+        py = position.y;
         while(px > 0){
             px--
             chunk.push({
@@ -75,7 +75,7 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
+        px = position.x;
         while(px < 7){
             px++
             chunk.push({
@@ -85,7 +85,7 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        px = position.current.x;
+        px = position.x;
         while(py < 7){
             py++
             chunk.push({
@@ -95,7 +95,7 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         }
         possibleMoves.push(chunk);
         chunk = [];
-        py = position.current.y;
+        py = position.y;
         while(py > 0){
             py--
             chunk.push({
@@ -106,8 +106,9 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         possibleMoves.push(chunk);
         return possibleMoves;
     }
+
     const thisQueen : Piece = {
-        position: position.current,
+        position: position,
         moves: [],
         color: 0,
         update: getUpdated,
@@ -116,13 +117,9 @@ const WhiteQueen = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
         initial: "q",
         alive: true,
     }
-    const thisNotifier : Notifier = {
-        arrayLocation: start,
-        color: 0,
-    }
 
     useEffect(() => {
-        setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
+        setMyClass(`${myClass} square${position.y}${position.x}`);
         updateBoard(thisQueen);
     },[])
 
