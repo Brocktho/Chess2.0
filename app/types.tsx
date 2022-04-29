@@ -18,7 +18,7 @@ export type Piece = {
 
 export type Threaten = {
   arrayLocation: Coordinates;
-  moves: Array<Array<Coordinates>>;
+  moves: Array<Coordinates>;
 }
 
 export type Notifier = {
@@ -29,8 +29,8 @@ export type Notifier = {
 export type Board = {
   whiteKing: number;
   blackKing: number;
-  attackOnWk: Array<Threaten>;
-  attackOnBk: Array<Threaten>;
+  threatOnWk: Array<Threaten>;
+  threatOnBk: Array<Threaten>;
   whiteAttacks: Array<number>;
   blackAttacks: Array<number>;
   whitePositions: Array<number>;
