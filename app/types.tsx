@@ -5,7 +5,7 @@ export type Coordinates = {
 
 export type Piece = {
   position: Coordinates;
-  moves?: Array<Coordinates>;
+  moves?: Array<Array<Coordinates>>;
   color: number;
   update: Function;
   generateMoves: Function;
@@ -16,10 +16,19 @@ export type Piece = {
   special?: boolean;
 };
 
-export type Threaten = {
+export type InternetPiece = {
+  position: Coordinates;
+  moves?: Array<Coordinates>;
+  update: Function;
+  initial: string;
+  alive: boolean;
+  id: string;
+};
+
+export type MoveTree = {
   arrayLocation: Coordinates;
   moves: Array<Coordinates>;
-}
+};
 
 export type Notifier = {
   arrayLocation: Coordinates;
@@ -29,8 +38,8 @@ export type Notifier = {
 export type Board = {
   whiteKing: number;
   blackKing: number;
-  threatOnWk: Array<Threaten>;
-  threatOnBk: Array<Threaten>;
+  threatOnWk: Array<MoveTree>;
+  threatOnBk: Array<MoveTree>;
   whiteAttacks: Array<number>;
   blackAttacks: Array<number>;
   whitePositions: Array<number>;
