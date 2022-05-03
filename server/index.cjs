@@ -13,7 +13,7 @@ const {
   WhiteKing,
   WhiteHorse,
   WhiteRook,
-} = require("./pieces/WhitePieces.mjs");
+} = require("./pieces/WhitePieces");
 const {
   BlackPawn,
   BlackBishop,
@@ -21,7 +21,7 @@ const {
   BlackKing,
   BlackHorse,
   BlackRook,
-} = require("./pieces/BlackPieces.mjs");
+} = require("pieces/BlackPieces.cjs");
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");

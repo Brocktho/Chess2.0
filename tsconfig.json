@@ -1,6 +1,6 @@
 {
   "exclude": ["./cypress"],
-  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "server/pieces/WhitePawn.mts"],
+  "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx", "server/pieces/WhitePieces.mts", "server/pieces/BlackPieces.mts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2019"],
     "types": ["vitest/globals"],

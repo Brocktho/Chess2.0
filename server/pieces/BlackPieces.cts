@@ -1,6 +1,9 @@
-import type { Coordinates } from "../../app/types";
+ type Coordinates = {
+    x: number;
+    y: number;
+  };
 
-export class WhitePawn{
+ class BlackPawn{
     position : Coordinates;
     special : boolean;
     id : string;
@@ -28,12 +31,12 @@ export class WhitePawn{
         let chunk: Array<Coordinates> = [];
         chunk.push({
         x: px,
-        y: py - 1,
+        y: py + 1,
         });
         if (this.special) {
         chunk.push({
             x: px,
-            y: py - 2,
+            y: py + 2,
         });
         }
         possibleMoves.push(chunk);
@@ -46,18 +49,18 @@ export class WhitePawn{
         let possibleAttacks: Array<Coordinates> = [];
         possibleAttacks.push({
         x: px - 1,
-        y: py - 1,
+        y: py + 1,
         });
         possibleAttacks.push({
         x: px + 1,
-        y: py - 1,
+        y: py + 1,
         });
         return possibleAttacks;
     }
 
 }
 
-export class WhiteBishop{
+ class BlackBishop{
     position : Coordinates;
     map : number;
     id : string;
@@ -135,7 +138,7 @@ export class WhiteBishop{
     }
 }
 
-export class WhiteRook{
+ class BlackRook{
     position : Coordinates;
     map : number;
     special : boolean;
@@ -206,7 +209,7 @@ export class WhiteRook{
     }
 }
 
-export class WhiteQueen{
+ class BlackQueen{
     position : Coordinates;
     map : number;
     id : string;
@@ -322,7 +325,7 @@ export class WhiteQueen{
     }
 }
 
-export class WhiteKing{
+ class BlackKing{
     position : Coordinates;
     map : number;
     id : string;
@@ -445,7 +448,7 @@ export class WhiteKing{
     }
 }
 
-export class WhiteHorse{
+ class BlackHorse{
     position : Coordinates;
     map : number;
     id : string;
@@ -557,3 +560,10 @@ export class WhiteHorse{
     return possibleMoves;
     }
 }
+
+exports.BlackPawn = BlackPawn;
+exports.BlackBishop = BlackBishop;
+exports.BlackKing = BlackKing;
+exports.BlackRook = BlackRook;
+exports.BlackQueen = BlackQueen;
+exports.BlackHorse = BlackHorse;

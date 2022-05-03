@@ -19,6 +19,7 @@ export type Piece = {
 export type InternetPiece = {
   position: Coordinates;
   moves?: Array<Coordinates>;
+  color: number;
   update: Function;
   initial: string;
   alive: boolean;
