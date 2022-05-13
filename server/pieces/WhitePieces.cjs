@@ -1,13 +1,13 @@
 
 class WhitePawn{
-    position : Coordinates;
-    special : boolean;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    special ;
+    id ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.id = id;
         this.special = true;
@@ -16,15 +16,15 @@ class WhitePawn{
         this.moves = [];
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves: Array<Array<Coordinates>> = [];
-        let chunk: Array<Coordinates> = [];
+        let possibleMoves = [];
+        let chunk = [];
         chunk.push({
         x: px,
         y: py - 1,
@@ -42,7 +42,7 @@ class WhitePawn{
     generateAttacks(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleAttacks: Array<Coordinates> = [];
+        let possibleAttacks = [];
         possibleAttacks.push({
         x: px - 1,
         y: py - 1,
@@ -57,14 +57,14 @@ class WhitePawn{
 }
 
 class WhiteBishop{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    map ;
+    id ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -73,7 +73,7 @@ class WhiteBishop{
         this.initial = "b";
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
@@ -82,8 +82,8 @@ class WhiteBishop{
         let py = this.position.y;
         let currentX = px;
         let currentY = py;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         while(currentX < 7 && currentY < 7){
             currentX++
             currentY++ 
@@ -135,15 +135,15 @@ class WhiteBishop{
 }
 
 class WhiteRook{
-    position : Coordinates;
-    map : number;
-    special : boolean;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    map ;
+    special ;
+    id ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.special = true;
@@ -153,14 +153,14 @@ class WhiteRook{
         this.initial = 'r';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
+        let possibleMoves  = [];
         let chunk = [];
         while(px < 7){
             px++;
@@ -206,14 +206,14 @@ class WhiteRook{
 }
 
 class WhiteQueen{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    map ;
+    id ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -222,15 +222,15 @@ class WhiteQueen{
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         while(px < 7 && py < 7){
             px++;
             py++;
@@ -322,15 +322,15 @@ class WhiteQueen{
 }
 
 class WhiteKing{
-    position : Coordinates;
-    map : number;
-    id : string;
-    special : boolean;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    map ;
+    id ;
+    special ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -340,15 +340,15 @@ class WhiteKing{
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         if(py < 7){
             chunk.push({
                 x: px,
@@ -445,14 +445,14 @@ class WhiteKing{
 }
 
 class WhiteHorse{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position ;
+    map ;
+    id ;
+    moves ;
+    alive ;
+    initial ;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -461,16 +461,16 @@ class WhiteHorse{
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
-        let possibleMoves : Array<Array<Coordinates>> = [];
+        let possibleMoves  = [];
         let px = this.position.x;
         let py = this.position.y;
-        let possibleX : Array<number>= [];
-        let possibleY : Array<number>= [];
+        let possibleX = [];
+        let possibleY = [];
         switch (px){
             case 0:
                 possibleX.push(px+2);
@@ -528,7 +528,7 @@ class WhiteHorse{
                 possibleY.push(py-2);
                 possibleY.push(py-1);
         }
-        let chunk : Array<Coordinates> = [];
+        let chunk  = [];
         possibleY.map(y => {
             possibleX.map(x => { 
                 if(y === py+2 || y === py-2){

@@ -6,22 +6,6 @@ const compression = require("compression");
 const morgan = require("morgan");
 const fs = require("fs");
 const { createRequestHandler } = require("@remix-run/express");
-const {
-  WhitePawn,
-  WhiteBishop,
-  WhiteQueen,
-  WhiteKing,
-  WhiteHorse,
-  WhiteRook,
-} = require("./pieces/WhitePieces");
-const {
-  BlackPawn,
-  BlackBishop,
-  BlackQueen,
-  BlackKing,
-  BlackHorse,
-  BlackRook,
-} = require("pieces/BlackPieces.cjs");
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");
@@ -48,68 +32,6 @@ io.of(
 ).on("connection", (socket) => {
   const namespace = socket.nsp;
   const thisGame = namespace.name;
-  var blackPieces = Array.apply(null, Array(2)).map((a, y) => {
-    return Array.apply(null, Array(8)).map((b, x) => {
-      let thisPosition = {
-        x: x,
-        y: y,
-      };
-      switch (y) {
-        case 1:
-          return new BlackPawn(thisPosition, `BlackPawn${x}`);
-        case 0:
-          switch (x) {
-            case 0:
-              return new BlackRook(thisPosition, `BlackRook${x}`);
-            case 1:
-              return new BlackHorse(thisPosition, `BlackHorse${x}`);
-            case 2:
-              return new BlackBishop(thisPosition, `BlackBishop${x}`);
-            case 3:
-              return new BlackQueen(thisPosition, `BlackQueen`);
-            case 4:
-              return new BlackKing(thisPosition, `BlackKing`);
-            case 5:
-              return new BlackBishop(thisPosition, `BlackBishop${x}`);
-            case 6:
-              return new BlackHorse(thisPosition, `BlackHorse${x}`);
-            case 7:
-              return new BlackRook(thisPosition, `BlackRook${x}`);
-          }
-      }
-    });
-  });
-  var whitePieces = Array.apply(null, Array(2)).map((a, y) => {
-    return Array.apply(null, Array(8)).map((b, x) => {
-      let thisPosition = {
-        x: x,
-        y: y,
-      };
-      switch (y) {
-        case 1:
-          return new WhitePawn(thisPosition, `BlackPawn${x}`);
-        case 0:
-          switch (x) {
-            case 0:
-              return new WhiteRook(thisPosition, `BlackRook${x}`);
-            case 1:
-              return new WhiteHorse(thisPosition, `BlackHorse${x}`);
-            case 2:
-              return new WhiteBishop(thisPosition, `BlackBishop${x}`);
-            case 3:
-              return new WhiteQueen(thisPosition, `BlackQueen`);
-            case 4:
-              return new WhiteKing(thisPosition, `BlackKing`);
-            case 5:
-              return new WhiteBishop(thisPosition, `BlackBishop${x}`);
-            case 6:
-              return new WhiteHorse(thisPosition, `BlackHorse${x}`);
-            case 7:
-              return new WhiteRook(thisPosition, `BlackRook${x}`);
-          }
-      }
-    });
-  });
 
   if (boards[`${thisGame}`] === undefined) {
     boards[`${thisGame}`] = {
@@ -119,7 +41,6 @@ io.of(
   }
 
   socket.on("thisPlayer", (data) => {
-    boards[`${thisGame}`].playerCount++;
     let isNew = true;
     let position = 0;
     boards[`${thisGame}`].players.every((player, index) => {
@@ -134,6 +55,7 @@ io.of(
     console.log(`Is new?: ${isNew}`);
     console.log(data);
     if (isNew) {
+      boards[`${thisGame}`].playerCount++;
       let newPlayer = {
         name: data,
         position: boards[`${thisGame}`].playerCount,
@@ -177,12 +99,7 @@ io.of(
   });
   socket.on("disconnect", () => {
     console.log(socket.id);
-    boards[`${thisGame}`].players.every((player) => {
-      if (player.socketId === socket.id) {
-        boards[`${thisGame}`].playerCount--;
-        return false;
-      }
-    });
+    
   });
 });
 

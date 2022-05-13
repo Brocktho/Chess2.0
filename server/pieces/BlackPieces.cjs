@@ -1,17 +1,13 @@
- type Coordinates = {
-    x: number;
-    y: number;
-  };
 
  class BlackPawn{
-    position : Coordinates;
-    special : boolean;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    special ;
+    id;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.id = id;
         this.special = true;
@@ -20,15 +16,15 @@
         this.moves = [];
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves: Array<Array<Coordinates>> = [];
-        let chunk: Array<Coordinates> = [];
+        let possibleMoves = [];
+        let chunk = [];
         chunk.push({
         x: px,
         y: py + 1,
@@ -46,7 +42,7 @@
     generateAttacks(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleAttacks: Array<Coordinates> = [];
+        let possibleAttacks = [];
         possibleAttacks.push({
         x: px - 1,
         y: py + 1,
@@ -61,14 +57,14 @@
 }
 
  class BlackBishop{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    map ;
+    id;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -77,7 +73,7 @@
         this.initial = "b";
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
@@ -86,8 +82,8 @@
         let py = this.position.y;
         let currentX = px;
         let currentY = py;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         while(currentX < 7 && currentY < 7){
             currentX++
             currentY++ 
@@ -139,15 +135,15 @@
 }
 
  class BlackRook{
-    position : Coordinates;
-    map : number;
-    special : boolean;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    map;
+    special;
+    id;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.special = true;
@@ -157,14 +153,14 @@
         this.initial = 'r';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
+        let possibleMoves  = [];
         let chunk = [];
         while(px < 7){
             px++;
@@ -210,14 +206,14 @@
 }
 
  class BlackQueen{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    map ;
+    id;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -226,15 +222,15 @@
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         while(px < 7 && py < 7){
             px++;
             py++;
@@ -326,15 +322,15 @@
 }
 
  class BlackKing{
-    position : Coordinates;
-    map : number;
-    id : string;
-    special : boolean;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    map ;
+    id;
+    special ;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -344,15 +340,15 @@
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
         let px = this.position.x;
         let py = this.position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk : Array<Coordinates> = [];
+        let possibleMoves  = [];
+        let chunk  = [];
         if(py < 7){
             chunk.push({
                 x: px,
@@ -449,14 +445,14 @@
 }
 
  class BlackHorse{
-    position : Coordinates;
-    map : number;
-    id : string;
-    moves : Array<Coordinates>;
-    alive : boolean;
-    initial : string;
+    position;
+    map ;
+    id;
+    moves;
+    alive;
+    initial;
 
-    constructor(position : Coordinates, id : string){
+    constructor(position , id ){
         this.position = position;
         this.map = ( position.y * 8 ) + position.x;
         this.id = id;
@@ -465,16 +461,16 @@
         this.initial = 'q';
     }
 
-    setMoves(moves : Array<Coordinates>){
+    setMoves(moves ){
         this.moves = moves;
     }
 
     generateMoves(){
-        let possibleMoves : Array<Array<Coordinates>> = [];
+        let possibleMoves  = [];
         let px = this.position.x;
         let py = this.position.y;
-        let possibleX : Array<number>= [];
-        let possibleY : Array<number>= [];
+        let possibleX = [];
+        let possibleY = [];
         switch (px){
             case 0:
                 possibleX.push(px+2);
@@ -532,7 +528,7 @@
                 possibleY.push(py-2);
                 possibleY.push(py-1);
         }
-        let chunk : Array<Coordinates> = [];
+        let chunk  = [];
         possibleY.map(y => {
             possibleX.map(x => { 
                 if(y === py+2 || y === py-2){
