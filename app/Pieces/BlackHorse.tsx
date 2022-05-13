@@ -106,16 +106,7 @@ const BlackHorse = ({initialPosition, updateBoard, notifyBoard}:{initialPosition
     }
     let thisHorse : Piece = {
         position: position.current,
-        moves: [
-            {
-                x: position.current.x-1,
-                y: position.current.y+2,
-            },
-            {
-                x: position.current.x+1,
-                y: position.current.y+2,
-            }
-        ],
+        moves: [],
         color: 1,
         update: getUpdated,
         generateMoves: HorseMoves,

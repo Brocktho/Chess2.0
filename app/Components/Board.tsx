@@ -30,6 +30,8 @@ const ChessBoard = ({
     setMoveBubbles(null);
   };
 
+  const sendMove = async () => {}
+
   const receiveAlert = async (piece : InternetPiece) => {
       await refreshDom();
       let moves = piece.moves as Array<Coordinates>;

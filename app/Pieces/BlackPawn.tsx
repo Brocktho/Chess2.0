@@ -47,16 +47,7 @@ const BlackPawn = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:
     }
     const thisPawn : Piece = {
         position: position.current,
-        moves: [
-            {
-                x:position.current.x,
-                y:position.current.y+1,
-            },
-            {
-                x:position.current.x,
-                y:position.current.y+2,
-            }
-        ],
+        moves: [],
         color: 1,
         update: getUpdated,
         generateMoves: blackPawnMoves,
