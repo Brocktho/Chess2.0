@@ -1,11 +1,30 @@
-import React, { useEffect, useState, useRef } from "react";
-import {WhiteRook, WhiteBishop, WhitePawn, WhiteHorse, WhiteQueen, WhiteKing} from "~/Pieces/InternetWhitePieces";
-import {BlackRook, BlackBishop, BlackPawn, BlackHorse, BlackQueen, BlackKing} from "~/Pieces/InternetBlackPieces";
+import { useEffect, useState, useReducer } from "react";
+import { NetPiece } from "../Pieces/InternetPiece";
 import MoveSpot from "~/Pieces/InternetMoveSpot";
-import type { Coordinates, Board, InternetPiece, Notifier, Movement } from "~/types";
+import type { Coordinates, InternetBoard, InternetPiece, State, Action} from "~/types";
 import invariant from "tiny-invariant";
 import type { Socket } from "socket.io-client";
 import type { User, GuestUser } from "~/models/user.server";
+
+const updateBoard = (state:State, action:Action) : State => {
+  switch(action.type){
+    case 'loading':
+      return {...state};
+    case 'foundPlayer':
+      state.player = action.player;
+      state.displayPlayer = action.display;
+      return {...state};
+    case "loadBoard":
+      state.whitePieces = action.whitePieces;
+      state.blackPieces = action.blackPieces;
+      return {...state};
+    case 'error':
+      state.displayPlayer = "An error has occured please refresh the page";
+      return {...state};
+    default:
+      return {...state};
+  }
+}
 
 const ChessBoard = ({
   socket,
@@ -14,26 +33,25 @@ const ChessBoard = ({
   socket: Socket | undefined;
   user: User | GuestUser;
 }) => {
-  const [player, setPlayer] = useState<number | null>(null);
-  const [displayPlayer, setDisplayPlayer] = useState<string | null>(null);
-  const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(
-    null
-  );
-  const [turns, setTurns] = useState<number>(1);
+  const [{
+    whitePieces,
+    blackPieces,
+    turn,
+    moveBubbles,
+    displayPlayer,
+    player
+  }, dispatch] = useReducer(updateBoard, { turn: 1 } );
+
   const thisWindow = typeof window !== "undefined";
-  const killCoord: Coordinates = {
+  
+  const killCoord : Coordinates = {
     x: -999,
     y: -999,
-  };
-
-  const refreshDom = async () => {
-    setMoveBubbles(null);
   };
 
   const sendMove = async () => {}
 
   const receiveAlert = async (piece : InternetPiece) => {
-      await refreshDom();
       let moves = piece.moves as Array<Coordinates>;
       let bubbles = moves.map((move) => {
         return (
@@ -46,193 +64,6 @@ const ChessBoard = ({
       });
     }
 
-  const blackPieces = Array.apply(null, Array(2)).map((a, y) => {
-    return Array.apply(null, Array(8)).map((b, x) => {
-      let thisPosition: Coordinates = {
-        x: x,
-        y: y,
-      };
-      switch (y) {
-        case 1:
-          return (
-            <BlackPawn
-              initialPosition={thisPosition}
-              notifyBoard={receiveAlert}
-              key={`BlackPawn${x}`}
-            />
-          );
-        case 0:
-          switch (x) {
-            case 0:
-              return (
-                <BlackRook
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackRook${x}`}
-                />
-              );
-            case 1:
-              return (
-                <BlackHorse
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackHorse${x}`}
-                />
-              );
-            case 2:
-              return (
-                <BlackBishop
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackBishop${x}`}
-                />
-              );
-            case 3:
-              return (
-                <BlackQueen
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackQueen${x}`}
-                />
-              );
-            case 4:
-              return (
-                <BlackKing
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackKing${x}`}
-                />
-              );
-            case 5:
-              return (
-                <BlackBishop
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackBishop${x}`}
-                />
-              );
-            case 6:
-              return (
-                <BlackHorse
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackHorse${x}`}
-                />
-              );
-            case 7:
-              return (
-                <BlackRook
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackRook${x}`}
-                />
-              );
-            default:
-              return (
-                <BlackPawn
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`BlackPawn${x}`}
-                />
-              );
-          }
-        default:
-          return (
-            <BlackPawn
-              initialPosition={thisPosition}
-              notifyBoard={receiveAlert}
-              key={`BlackPawn${x}`}
-            />
-          );
-      }
-    });
-  });
-
-  const whitePieces = Array.apply(null, Array(2)).map((a, y) => {
-    return Array.apply(null, Array(8)).map((b, x) => {
-      let thisPosition: Coordinates = {
-        x: x,
-        y: y + 6,
-      };
-      switch (y) {
-        case 0:
-          return (
-            <WhitePawn
-              initialPosition={thisPosition}
-              notifyBoard={receiveAlert}
-              key={`WhitePawn${x}`}
-            />
-          );
-        case 1:
-          switch (x) {
-            case 0:
-              return (
-                <WhiteRook
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteRook${x}`}
-                />
-              );
-            case 1:
-              return (
-                <WhiteHorse
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteHorse${x}`}
-                />
-              );
-            case 2:
-              return (
-                <WhiteBishop
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteBishop${x}`}
-                />
-              );
-            case 3:
-              return (
-                <WhiteQueen
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteQueen${x}`}
-                />
-              );
-            case 4:
-              return (
-                <WhiteKing
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteKing${x}`}
-                />
-              );
-            case 5:
-              return (
-                <WhiteBishop
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteBishop${x}`}
-                />
-              );
-            case 6:
-              return (
-                <WhiteHorse
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteHorse${x}`}
-                />
-              );
-            case 7:
-              return (
-                <WhiteRook
-                  initialPosition={thisPosition}
-                  notifyBoard={receiveAlert}
-                  key={`WhiteRook${x}`}
-                />
-              );
-          }
-      }
-    });
-  });
 
   useEffect(() => {
     if (!socket) return;
@@ -249,12 +80,12 @@ const ChessBoard = ({
         let guest: GuestUser = {
           username: "Temporary User",
         };
-        socket.on("connection", (data) => {
+        socket.on("connection", () => {
           socket.emit("chess", "Chess Board checking in");
           socket.emit("thisPlayer", guest.username);
         });
       } else {
-        socket.on("connection", (data) => {
+        socket.on("connection", () => {
           socket.emit("chess", "Chess Board checking in");
           socket.emit("thisPlayer", user.username);
         });
@@ -266,21 +97,43 @@ const ChessBoard = ({
     if (!socket) return;
     socket.on("chessPlayer", (data) => {
       if (data === 0) {
-        setDisplayPlayer("An error has occured, please refresh your page.");
+        dispatch({type: "error"});
       } else if (data === 1) {
-        setDisplayPlayer("You are playing the White Pieces");
+        dispatch({type: "foundPlayer", player:0, display:"You are playing the White Pieces"});
       } else if (data === 2) {
-        setDisplayPlayer("You are playing the Black Pieces");
+        dispatch({type: "foundPlayer", player:1, display:"You are playing the Black Pieces"});
       } else {
-        setDisplayPlayer("You are spectating");
+        dispatch({type:"foundPlayer", player:2, display:"You are spectating"});
       }
-      setPlayer(data);
     });
-
+    socket.on("boardState", (data : InternetBoard) => {
+      let whiteBuffer : Array<JSX.Element> = [];
+      data.whitePieces.forEach(pieceArray => {
+        pieceArray.forEach( piece => {
+          let index;
+          if(piece.initial === "p"){
+            index = 0;
+          }else{
+            index = 1;
+          }
+          const PIECE_CLASS = `w${piece.initial}`;
+          whiteBuffer.push(<NetPiece initialPosition={piece.position} pieceClass={PIECE_CLASS} color={0} moves={piece.moves} moveGenerator={piece.moveGenerator} id={piece.id} notifyBoard={receiveAlert}/>)
+        });
+      });
+      let blackBuffer : Array<JSX.Element> = [];
+      data.blackPieces.forEach(pieceArray => {
+        pieceArray.forEach(piece => {
+          const PIECE_CLASS = `b${piece.initial}`;
+          console.log(piece.initial);
+          blackBuffer.push(<NetPiece initialPosition={piece.position} pieceClass={PIECE_CLASS} color={1} moves={piece.moves} moveGenerator={piece.moveGenerator} id={piece.id} notifyBoard={receiveAlert}/>)
+        })
+      });
+      dispatch({type:"loadBoard", whitePieces: whiteBuffer, blackPieces:blackBuffer});
+    });
     socket.on("connectBoard", (data) => {});
   }, [socket]);
 
-  useEffect(() => {}, [turns]);
+  useEffect(() => {}, [turn]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -293,7 +146,7 @@ const ChessBoard = ({
       )}
       <div
         className="board bg-slate-800"
-        onClick={async (e) => await refreshDom()}
+        onClick={async (e) => {}}
       >
         {blackPieces}
         {whitePieces}

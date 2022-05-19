@@ -11,7 +11,7 @@
         this.position = position;
         this.id = id;
         this.special = true;
-        this.alive = false;
+        this.alive = true;
         this.initial = "p";
         this.moves = [];
     }
@@ -337,7 +337,7 @@
         this.special = true;
         this.moves = [];
         this.alive = true;
-        this.initial = 'q';
+        this.initial = 'k';
     }
 
     setMoves(moves ){
@@ -458,7 +458,7 @@
         this.id = id;
         this.moves = [];
         this.alive = true;
-        this.initial = 'q';
+        this.initial = 'h';
     }
 
     setMoves(moves ){

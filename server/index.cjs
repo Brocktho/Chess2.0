@@ -6,6 +6,7 @@ const compression = require("compression");
 const morgan = require("morgan");
 const fs = require("fs");
 const { createRequestHandler } = require("@remix-run/express");
+const { Board } = require("./boardLogic.cjs");
 
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "server/build");
@@ -37,6 +38,7 @@ io.of(
     boards[`${thisGame}`] = {
       players: [],
       playerCount: 0,
+      board: new Board(),
     };
   }
 
@@ -70,6 +72,7 @@ io.of(
     } else {
       socket.emit("chessPlayer", position);
     }
+    socket.emit("boardState", boards[`${thisGame}`].board);
     console.log(boards[`${thisGame}`]);
   });
 

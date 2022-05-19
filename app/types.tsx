@@ -16,9 +16,30 @@ export type Piece = {
   special?: boolean;
 };
 
+export type BoardState = {
+  whitePieces?: Array<JSX.Element>;
+  blackPieces?: Array<JSX.Element>;
+}
+
+export type State = {
+  whitePieces?: Array<JSX.Element>;
+  blackPieces?: Array<JSX.Element>;
+  turn: number;
+  moveBubbles?: Array<JSX.Element>;
+  displayPlayer?: string;
+  player?: number;
+}
+
+export type Action = 
+|{ type: 'loading' }
+|{ type: 'error' }
+|{ type: 'foundPlayer', player:number, display:string}
+|{ type: 'loadBoard', whitePieces: Array<JSX.Element>, blackPieces:Array<JSX.Element> }
+
 export type InternetPiece = {
   position: Coordinates;
-  moves?: Array<Coordinates>;
+  moves: Array<Coordinates>;
+  moveGenerator: Function;
   color: number;
   update: Function;
   initial: string;
@@ -35,6 +56,23 @@ export type Notifier = {
   arrayLocation: Coordinates;
   color: number;
 };
+
+export type InternetBoard = {
+  whiteKing: number;
+  blackKing: number;
+  threatOnWk: Array<MoveTree>;
+  threatOnBk: Array<MoveTree>;
+  whiteAttacks: Array<number>;
+  blackAttacks: Array<number>;
+  whitePositions: Array<number>;
+  blackPositions: Array<number>;
+  whitePieces: Array<Array<InternetPiece>>;
+  blackPieces: Array<Array<InternetPiece>>;
+  whiteHistory: Array<String>;
+  blackHistory: Array<String>;
+  whiteCasts: Array<MoveTree>;
+  blackCasts: Array<MoveTree>;
+}
 
 export type Board = {
   whiteKing: number;

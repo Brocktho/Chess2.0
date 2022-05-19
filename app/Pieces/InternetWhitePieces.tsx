@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+export{}
+/* import { useState, useEffect } from 'react';
 import type { Coordinates, InternetPiece } from "~/types";
 
 export const WhiteRook = ({initialPosition, notifyBoard}:{initialPosition:Coordinates, notifyBoard:Function}) => {
@@ -230,4 +231,4 @@ export const WhiteQueen = ({
             notifyBoard(thisBishop);
         }}/>
     )
-}
+} */

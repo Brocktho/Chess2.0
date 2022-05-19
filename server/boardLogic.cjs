@@ -16,30 +16,33 @@ const {
   } = require("./pieces/BlackPieces.cjs");
 
 class Board {
+    whiteKing;
+    blackKing;
+    threatOnWk;
+    threatOnBk;
+    whiteAttacks;
+    blackAttacks;
+    whitePositions;
+    blackPositions;
     whitePieces;
     blackPieces;
     whiteHistory;
     blackHistory;
-    whiteAttacks;
-    blackAttacks;
-    whiteKing;
-    blackKing;
     whiteCasts;
     blackCasts;
-    whiteLocations;
-    blackLocations;
+
 
     constructor(){
         this.whitePieces = Array.apply(null, Array(2)).map((a, y) => {
             return Array.apply(null, Array(8)).map((b, x) => {
               let thisPosition = {
                 x: x,
-                y: y,
+                y: y+6,
               };
               switch (y) {
-                case 1:
-                  return new WhitePawn(thisPosition, `BlackPawn${x}`);
                 case 0:
+                  return new WhitePawn(thisPosition, `BlackPawn${x}`);
+                case 1:
                   switch (x) {
                     case 0:
                       return new WhiteRook(thisPosition, `BlackRook${x}`);
@@ -93,13 +96,12 @@ class Board {
               }
             });
           });
-
           this.whiteHistory = [];
           this.blackHistory = [];
           this.whiteKing = 60;
           this.blackKing = 4;
-          this.whiteLocations = this.generateInitialWhitePositions();
-          this.blackLocations = this.generateInitialBlackPositions();
+          this.whitePositions = this.generateInitialWhitePositions();
+          this.blackPositions = this.generateInitialBlackPositions();
     }
 
     generateInitialWhitePositions(){
@@ -133,7 +135,7 @@ class Board {
                     let chunk = [];
                     vector.every(move => {
                         const MAP = ( move.position.y * 8 ) + move.position.x
-                        if(this.whiteLocations.includes(MAP)){
+                        if(this.whitePositions.includes(MAP)){
                             return false;
                         }else{
                             chunk.push(MAP);
@@ -148,3 +150,5 @@ class Board {
         });
     }
 }
+
+exports.Board = Board;
