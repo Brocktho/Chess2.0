@@ -41,25 +41,29 @@ class Board {
               };
               switch (y) {
                 case 0:
-                  return new WhitePawn(thisPosition, `BlackPawn${x}`);
+                  let p = new WhitePawn(thisPosition, `WhitePawn${x}`);
+                  let moves = p.generateMoves();
+                  p.setMoves(moves)
+                  console.log(p);
+                  return p;
                 case 1:
                   switch (x) {
                     case 0:
-                      return new WhiteRook(thisPosition, `BlackRook${x}`);
+                      return new WhiteRook(thisPosition, `WhiteRook${x}`);
                     case 1:
-                      return new WhiteHorse(thisPosition, `BlackHorse${x}`);
+                      return new WhiteHorse(thisPosition, `WhiteHorse${x}`);
                     case 2:
-                      return new WhiteBishop(thisPosition, `BlackBishop${x}`);
+                      return new WhiteBishop(thisPosition, `WhiteBishop${x}`);
                     case 3:
-                      return new WhiteQueen(thisPosition, `BlackQueen`);
+                      return new WhiteQueen(thisPosition, `WhiteQueen`);
                     case 4:
-                      return new WhiteKing(thisPosition, `BlackKing`);
+                      return new WhiteKing(thisPosition, `WhiteKing`);
                     case 5:
-                      return new WhiteBishop(thisPosition, `BlackBishop${x}`);
+                      return new WhiteBishop(thisPosition, `WhiteBishop${x}`);
                     case 6:
-                      return new WhiteHorse(thisPosition, `BlackHorse${x}`);
+                      return new WhiteHorse(thisPosition, `WhiteHorse${x}`);
                     case 7:
-                      return new WhiteRook(thisPosition, `BlackRook${x}`);
+                      return new WhiteRook(thisPosition, `WhiteRook${x}`);
                   }
               }
             });

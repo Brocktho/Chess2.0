@@ -25,7 +25,7 @@ export type State = {
   whitePieces?: Array<JSX.Element>;
   blackPieces?: Array<JSX.Element>;
   turn: number;
-  moveBubbles?: Array<JSX.Element>;
+  moveBubbles?: Array<JSX.Element> | null;
   displayPlayer?: string;
   player?: number;
 }
@@ -35,10 +35,12 @@ export type Action =
 |{ type: 'error' }
 |{ type: 'foundPlayer', player:number, display:string}
 |{ type: 'loadBoard', whitePieces: Array<JSX.Element>, blackPieces:Array<JSX.Element> }
+|{ type: 'castMoves', bubbles: Array<JSX.Element>}
+|{ type: "refresh", newLocations: Array<Array<Coordinates>>}
 
 export type InternetPiece = {
   position: Coordinates;
-  moves: Array<Coordinates>;
+  moves: Array<Array<Coordinates>>;
   moveGenerator: Function;
   color: number;
   update: Function;

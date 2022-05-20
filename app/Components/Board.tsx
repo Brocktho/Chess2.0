@@ -18,6 +18,12 @@ const updateBoard = (state:State, action:Action) : State => {
       state.whitePieces = action.whitePieces;
       state.blackPieces = action.blackPieces;
       return {...state};
+    case "castMoves":
+      state.moveBubbles = action.bubbles;
+      return {...state};
+    case "refresh":
+      state.moveBubbles = action.bubbles;
+      return {...state};
     case 'error':
       state.displayPlayer = "An error has occured please refresh the page";
       return {...state};
@@ -49,21 +55,32 @@ const ChessBoard = ({
     y: -999,
   };
 
+  const refresh = async () => {
+    
+  }
+
   const sendMove = async () => {}
 
   const receiveAlert = async (piece : InternetPiece) => {
-      let moves = piece.moves as Array<Coordinates>;
-      let bubbles = moves.map((move) => {
-        return (
-          <MoveSpot
-            initialPosition={move}
-            thisPiece={piece}
-            sendMove={sendMove}
-          />
-        );
-      });
-    }
-
+      let moves = piece.moves as Array<Array<Coordinates>>;
+      moveBubbles ? dispatch({type: "refresh", newLocations: moves}) : () => 
+      {
+        let bubbles = [];
+        for ( let outIndex in moves) {
+          let moveArray = moves[outIndex];
+          for ( let inIndex in moveArray){
+            bubbles.push(<MoveSpot
+                initialPosition={moveArray[inIndex]}
+                thisPiece={piece}
+                sendMove={sendMove}
+                update={dispatch}
+              />
+              )
+          }
+        dispatch({type: "castMoves", bubbles: bubbles});
+        }
+      }
+    
 
   useEffect(() => {
     if (!socket) return;

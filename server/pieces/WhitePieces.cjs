@@ -337,7 +337,7 @@ class WhiteKing{
         this.special = true;
         this.moves = [];
         this.alive = true;
-        this.initial = 'q';
+        this.initial = 'k';
     }
 
     setMoves(moves ){
@@ -458,7 +458,7 @@ class WhiteHorse{
         this.id = id;
         this.moves = [];
         this.alive = true;
-        this.initial = 'q';
+        this.initial = 'h';
     }
 
     setMoves(moves ){
