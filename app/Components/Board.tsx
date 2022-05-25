@@ -64,13 +64,13 @@ const ChessBoard = ({
   const sendMove = async () => {}
 
   const receiveAlert = async (piece : InternetPiece) => {
-    let moves = piece.moves as Array<Array<Coordinates>>;
+    const moves = piece.moves as Array<Array<Coordinates>>;
     console.log(moveBubbles);
     moveBubbles && await refresh();
     let bubbles = [];
-    for ( let outIndex in moves) {
+    for ( const outIndex in moves) {
       let moveArray = moves[outIndex];
-      for ( let inIndex in moveArray){
+      for ( const inIndex in moveArray){
         bubbles.push(<MoveSpot
             initialPosition={moveArray[inIndex]}
             thisPiece={piece}
