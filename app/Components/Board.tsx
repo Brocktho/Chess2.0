@@ -20,9 +20,10 @@ const updateBoard = (state:State, action:Action) : State => {
       return {...state};
     case "castMoves":
       state.moveBubbles = action.bubbles;
+      console.log(state);
       return {...state};
     case "refresh":
-      state.moveBubbles = action.bubbles;
+      state.moveBubbles = null;
       return {...state};
     case 'error':
       state.displayPlayer = "An error has occured please refresh the page";
@@ -45,7 +46,7 @@ const ChessBoard = ({
     turn,
     moveBubbles,
     displayPlayer,
-    player
+    player,
   }, dispatch] = useReducer(updateBoard, { turn: 1 } );
 
   const thisWindow = typeof window !== "undefined";
@@ -56,31 +57,30 @@ const ChessBoard = ({
   };
 
   const refresh = async () => {
-    
+    console.log('refreshing');
+    dispatch({type:'refresh'})
   }
 
   const sendMove = async () => {}
 
   const receiveAlert = async (piece : InternetPiece) => {
-      let moves = piece.moves as Array<Array<Coordinates>>;
-      moveBubbles ? dispatch({type: "refresh", newLocations: moves}) : () => 
-      {
-        let bubbles = [];
-        for ( let outIndex in moves) {
-          let moveArray = moves[outIndex];
-          for ( let inIndex in moveArray){
-            bubbles.push(<MoveSpot
-                initialPosition={moveArray[inIndex]}
-                thisPiece={piece}
-                sendMove={sendMove}
-                update={dispatch}
-              />
-              )
-          }
-        dispatch({type: "castMoves", bubbles: bubbles});
-        }
+    let moves = piece.moves as Array<Array<Coordinates>>;
+    console.log(moveBubbles);
+    moveBubbles && await refresh();
+    let bubbles = [];
+    for ( let outIndex in moves) {
+      let moveArray = moves[outIndex];
+      for ( let inIndex in moveArray){
+        bubbles.push(<MoveSpot
+            initialPosition={moveArray[inIndex]}
+            thisPiece={piece}
+            sendMove={sendMove}
+          />
+          )
       }
-    
+    }
+    dispatch({type: "castMoves", bubbles: bubbles});
+  }    
 
   useEffect(() => {
     if (!socket) return;
@@ -163,7 +163,7 @@ const ChessBoard = ({
       )}
       <div
         className="board bg-slate-800"
-        onClick={async (e) => {}}
+        onClick={async (e) => { await refresh();}}
       >
         {blackPieces}
         {whitePieces}
