@@ -36,7 +36,7 @@ export type Action =
 |{ type: 'foundPlayer', player:number, display:string}
 |{ type: 'loadBoard', whitePieces: Array<JSX.Element>, blackPieces:Array<JSX.Element> }
 |{ type: 'castMoves', bubbles: Array<JSX.Element>}
-|{ type: "refresh", newLocations: Array<Array<Coordinates>>}
+|{ type: "refresh"}
 
 export type InternetPiece = {
   position: Coordinates;

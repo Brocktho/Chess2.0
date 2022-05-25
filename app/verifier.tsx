@@ -1,25 +1,22 @@
 export const NoNoWords = () => {
-  return [
+  let badwords = [
     "nigger",
     "kike",
     "faggot",
     "chinaman",
     "chink",
-    "n1glet",
-    "n1gl3t",
-    "nigl3t",
     "niglet",
     "neeger",
     "kneegor",
     "kniggor",
     "knigger",
-    "n1gg3r",
-    "n1gger",
-    "nigg3r",
-    "kn33gor",
-    "kne3gor",
-    "k1k3",
-    "k1ke",
-    "kik3",
   ];
+  let variants = [];
+  for(const index in badwords) {
+    const word = badwords[index];
+    //for(const char in word){
+
+    //}
+  }
+  return badwords;
 };
