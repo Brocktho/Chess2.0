@@ -2,122 +2,54 @@ import { useEffect, useState, useRef } from "react";
 import invariant from "tiny-invariant";
 import type { Socket } from "socket.io-client";
 import { isUser } from "~/utils";
-import type { User, GuestUser } from "~/models/user.server";
 
 import type { chatMessage } from "~/types";
 
 const Chat = ({
-  socket,
-  user,
+  dispatch,
+  chatItems,
+  chatName,
 }: {
-  socket: Socket | undefined;
-  user: User | GuestUser;
+  dispatch: Function;
+  chatItems: Array<chatMessage> | null;
+  chatName: string;
 }) => {
-  const [chatItems, setChatItems] = useState<Array<chatMessage> | null>([]);
   const chatItemsHold = useRef<Array<chatMessage>>([]);
   const previous = useRef<Array<chatMessage>>([]);
   const socketConnection = useRef<string>("guest");
   let optimistic: NodeJS.Timeout;
-  const thisWindow = typeof window !== "undefined";
-
-  const refreshDom = async () => {
-    setChatItems(null);
-  };
-
-  const updateChat = async () => {
-    await refreshDom();
-    setChatItems(chatItemsHold.current);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     let target = event.target as HTMLFormElement;
     let chat = target.chat as HTMLInputElement;
     event.preventDefault();
     if (chat.value !== "") {
-      let message: chatMessage;
-      if (isUser(user)) {
-        message = {
-          name: user ? user.username : socketConnection.current,
-          message: chat.value,
-        };
-      } else {
-        message = {
-          name: user
-            ? user.username.substring(0, 10)
-            : socketConnection.current.substring(0, 10),
-          message: chat.value,
-        };
-      }
-      previous.current = chatItemsHold.current;
-      chatItemsHold.current.push(message);
-      updateChat();
+      const MESSAGE = {
+        name: chatName,
+        message: chat.value,
+      };
+      chatItemsHold.current.push(MESSAGE);
+      dispatch({ type: "send chat", message: MESSAGE });
       chat.value = "";
-      socket?.emit("chatMessage", message);
-      optimistic = setTimeout(() => {
-        chatItemsHold.current = previous.current;
-        updateChat();
-      }, 2000);
     }
   };
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("connection", (data: string) => {
-      if (thisWindow) {
-        if (!localStorage.getItem("guestUser")) {
-          localStorage.setItem("guestUser", self.crypto.randomUUID());
-        }
-        let guest = localStorage.getItem("guestUser") as string;
-        socketConnection.current = `Guest-${guest.slice(-5)}`;
-      }
-    });
-
-    socket.on("chatStart", (data: string) => {
-      chatItemsHold.current.push({
-        name: "Server",
-        message: data,
-      });
-      updateChat();
-    });
-    socket.on("boardStart", (data: string) => {
-      chatItemsHold.current.push({
-        name: "Server",
-        message: data,
-      });
-      updateChat();
-    });
-    socket.on("updateChat", (data: chatMessage) => {
-      chatItemsHold.current.push(data);
-      updateChat();
-    });
-    socket.on("updateWorked", (data: boolean) => {
-      clearTimeout(optimistic);
-    });
-  }, [socket]);
-
-  useEffect(() => {
-    if (thisWindow) {
-      if (!user && !localStorage.getItem("guestUser")) {
-        localStorage.setItem("guestUser", self.crypto.randomUUID());
-      }
-    }
-    if (!socket) return;
-    socket.emit("chatLoad", true);
-  }, []);
 
   return (
     <div className="flex h-96 w-96 flex-col justify-between rounded-xl bg-white shadow-xl">
       <div className="flex h-4/5 w-full flex-col items-center overflow-y-auto px-6 pt-2 text-xs">
         <h1 className="text-lg">Live Chat</h1>
         {chatItems &&
-          chatItems.map((item) => {
+          chatItems.map((item, index) => {
             return (
-              <p className="w-full">
+              <p
+                key={index}
+                className="w-full rounded-xl bg-blue-500 text-white"
+              >
                 {item.name}: {item.message}
               </p>
             );
           })}
+        {}
       </div>
       <form
         className="flex flex-col gap-2 p-4"

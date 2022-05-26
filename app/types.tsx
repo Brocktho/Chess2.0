@@ -16,27 +16,21 @@ export type Piece = {
   special?: boolean;
 };
 
-export type BoardState = {
-  whitePieces?: Array<JSX.Element>;
-  blackPieces?: Array<JSX.Element>;
-}
-
 export type State = {
-  whitePieces?: Array<JSX.Element>;
-  blackPieces?: Array<JSX.Element>;
-  turn: number;
-  moveBubbles?: Array<JSX.Element> | null;
+  board?: InternetBoard;
+  chat?: Function;
+  history?: Function;
   displayPlayer?: string;
   player?: number;
-}
+};
 
-export type Action = 
-|{ type: 'loading' }
-|{ type: 'error' }
-|{ type: 'foundPlayer', player:number, display:string}
-|{ type: 'loadBoard', whitePieces: Array<JSX.Element>, blackPieces:Array<JSX.Element> }
-|{ type: 'castMoves', bubbles: Array<JSX.Element>}
-|{ type: "refresh"}
+export type Action =
+  | { type: "loading" }
+  | { type: "error" }
+  | { type: "foundPlayer"; player: number; display: string }
+  | { type: "loadBoard"; boardDirective: Array<String> }
+  | { type: "castMoves"; bubbles: Array<JSX.Element> }
+  | { type: "refresh" };
 
 export type InternetPiece = {
   position: Coordinates;
@@ -74,7 +68,8 @@ export type InternetBoard = {
   blackHistory: Array<String>;
   whiteCasts: Array<MoveTree>;
   blackCasts: Array<MoveTree>;
-}
+  moveBubbles: Array<JSX.Element>;
+};
 
 export type Board = {
   whiteKing: number;

@@ -29,7 +29,7 @@ const Chess = () => {
           </Link>
         </div>
       )}
-      <div className="flex w-full flex-row items-center justify-around">
+      <div className="flex w-full flex-col items-center">
         <Outlet />
       </div>
     </div>

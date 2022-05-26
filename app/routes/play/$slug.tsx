@@ -1,17 +1,16 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useCatch, useLoaderData } from "@remix-run/react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import invariant from "tiny-invariant";
 
 import type { Socket } from "socket.io-client";
 import io from "socket.io-client";
 import { SocketProvider } from "~/context";
 
-import Board from "~/Components/Board";
-import Chat from "~/Components/Chat";
+import GameSocket from "~/Components/GameSocket";
 import { useOptionalUser } from "~/utils";
-import type { GuestUser } from "~/models/user.server";
+import type { IdentifyUser } from "~/models/user.server";
 
 type LoaderData = {
   socketName: string;
@@ -26,43 +25,49 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export default function GameRoom() {
-  const data = useLoaderData() as LoaderData;
+  const DATA = useLoaderData() as LoaderData;
   const [socket, setSocket] = useState<Socket | undefined>();
-  const user = useOptionalUser();
-  const [guestUser, setGuestUser] = useState<GuestUser>({ username: "" });
-  const thisWindow = typeof window !== "undefined";
-  const quickGuest = useRef<string>();
+  const [userIdentifier, setUserIdentifier] = useState<IdentifyUser>({
+    username: "",
+    identifier: "",
+  });
+  const USER = useOptionalUser();
+
+  const identifyUser = () => {
+    let identifier_string: string;
+    if (!localStorage.getItem("guestUser")) {
+      identifier_string = self.crypto
+        ? self.crypto.randomUUID()
+        : `${Math.random() * 123}`;
+      localStorage.setItem("guestUser", identifier_string);
+    } else {
+      identifier_string = localStorage.getItem("guestUser") as string;
+    }
+    const SOCKET_USER = USER
+      ? {
+          username: USER.username,
+          identifier: `${USER.username}${identifier_string}`,
+        }
+      : {
+          username: "Guest User",
+          identifier: `Guest User failure ${identifier_string}`,
+        };
+    setUserIdentifier(SOCKET_USER);
+  };
 
   useEffect(() => {
-    const socket = io(`/${data.socketName}`);
-    setSocket(socket);
-    if (thisWindow) {
-      if (!user && !localStorage.getItem("guestUser")) {
-        localStorage.setItem("guestUser", self.crypto.randomUUID());
-      }
-      let guest = `Guest-${localStorage.getItem("guestUser") as string}`;
-      setGuestUser({
-        username: guest,
-      });
-      quickGuest.current = guest;
-    } else {
-      if (!user) {
-        setGuestUser({
-          username: "Temporary Guest",
-        });
-        quickGuest.current = "Temporary Guest";
-      }
-    }
-
-    socket.emit("thisPlayer", user ? user.username : quickGuest.current);
+    const SOCKET = io(`/${DATA.socketName}`);
+    setSocket(SOCKET);
+    identifyUser();
+    SOCKET.emit("thisPlayer", userIdentifier);
     return () => {
-      socket.close();
+      SOCKET.close();
     };
   }, []);
+
   return (
     <SocketProvider socket={socket}>
-      <Board socket={socket} user={user ? user : guestUser} />
-      <Chat socket={socket} user={user ? user : guestUser} />
+      <GameSocket socket={socket} user={userIdentifier} />
     </SocketProvider>
   );
 }

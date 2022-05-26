@@ -5,8 +5,9 @@ import { prisma } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
-export type GuestUser = {
+export type IdentifyUser = {
   username: string,
+  identifier: string,
 }
 
 export async function getUserById(id: User["id"]) {
