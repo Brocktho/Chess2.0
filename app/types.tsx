@@ -34,7 +34,7 @@ export type Action =
 
 export type InternetPiece = {
   position: Coordinates;
-  moves: Array<Array<Coordinates>>;
+  moves: Array<Coordinates>;
   moveGenerator: Function;
   color: number;
   update: Function;

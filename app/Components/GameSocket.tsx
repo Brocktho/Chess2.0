@@ -1,10 +1,9 @@
-import invariant from "tiny-invariant";
+import { useEffect, useReducer } from 'react';
+import updateBoard from '~/BoardActions';
 
-import { useEffect, useReducer } from "react";
-import updateBoard from "~/BoardActions";
-import ChessBoard from "./Board";
-import Chat from "./Chat";
-import History from "./History";
+import ChessBoard from './Board';
+import Chat from './Chat';
+import History from './History';
 
 import type { Coordinates, InternetBoard } from "~/types";
 import type { Socket } from "socket.io-client";
@@ -19,6 +18,8 @@ const GameSocket = ({
 }) => {
   const [{ board, chat, history, displayPlayer, player }, dispatch] =
     useReducer(updateBoard, {});
+
+  //separating socket functionality out here for the board, won't be doing that for the chat since the chat isn't too complex of logic
 
   useEffect(() => {
     if (!socket) return;
@@ -58,11 +59,11 @@ const GameSocket = ({
             Not Initialized please refresh your browser
           </h1>
         )}
-        <ChessBoard dispatch={dispatch} />
+        <ChessBoard />
       </div>
-      <div className="flex flex-col w-64 gap-4">
+      <div className="flex w-64 flex-col gap-4">
         <History history={[]} />
-        <Chat dispatch={dispatch} chatItems={[]} chatName={user.username} />
+        <Chat socket={socket} user={user} />
       </div>
     </div>
   );

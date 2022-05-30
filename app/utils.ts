@@ -1,9 +1,8 @@
-import { useMatches } from "@remix-run/react";
-import { useMemo } from "react";
-import { randomUUID } from "crypto";
+import { useMatches } from '@remix-run/react';
+import { useMemo } from 'react';
 
 
-import type { User, GuestUser } from "~/models/user.server";
+import type { User } from "~/models/user.server";
 
 /**
  * This base hook is used in other hooks to quickly search for specific data

@@ -16,11 +16,8 @@ const updateBoard = (state:State, action:Action) : State => {
         }
         return {...state};
       case "castMoves":
-        state.moveBubbles = action.bubbles;
-        console.log(state);
         return {...state};
       case "refresh":
-        state.moveBubbles = null;
         return {...state};
       case 'error':
         state.displayPlayer = "An error has occured please refresh the page";

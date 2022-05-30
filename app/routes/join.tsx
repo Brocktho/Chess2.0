@@ -1,22 +1,16 @@
+import { json, redirect } from '@remix-run/node';
+import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
+import * as React from 'react';
+import { createUser, getUserByEmail, getUserByUsername } from '~/models/user.server';
+import { createUserSession, getUserId } from '~/session.server';
+import { validateEmail } from '~/utils';
+import { NoNoWords } from '~/verifier';
+
 import type {
   ActionFunction,
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
-import * as React from "react";
-import { NoNoWords } from "~/verifier";
-
-import { getUserId, createUserSession } from "~/session.server";
-
-import {
-  createUser,
-  getUserByEmail,
-  getUserByUsername,
-} from "~/models/user.server";
-import { validateEmail } from "~/utils";
-
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
