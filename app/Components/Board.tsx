@@ -1,24 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
-import invariant from 'tiny-invariant';
-import BlackBishop from '~/Pieces/BlackBishop';
-import BlackHorse from '~/Pieces/BlackHorse';
-import BlackKing from '~/Pieces/BlackKing';
-import BlackPawn from '~/Pieces/BlackPawn';
-import BlackQueen from '~/Pieces/BlackQueen';
-import BlackRook from '~/Pieces/BlackRook';
-import MoveSpot from '~/Pieces/MoveSpot';
-import WhiteBishop from '~/Pieces/WhiteBishop';
-import WhiteHorse from '~/Pieces/WhiteHorse';
-import WhiteKing from '~/Pieces/WhiteKing';
-import WhitePawn from '~/Pieces/WhitePawn';
-import WhiteQueen from '~/Pieces/WhiteQueen';
-import WhiteRook from '~/Pieces/WhiteRook';
+import React, { useEffect, useRef, useState } from "react";
+import invariant from "tiny-invariant";
+import BlackBishop from "~/Pieces/BlackBishop";
+import BlackHorse from "~/Pieces/BlackHorse";
+import BlackKing from "~/Pieces/BlackKing";
+import BlackPawn from "~/Pieces/BlackPawn";
+import BlackQueen from "~/Pieces/BlackQueen";
+import BlackRook from "~/Pieces/BlackRook";
+import MoveSpot from "~/Pieces/MoveSpot";
+import WhiteBishop from "~/Pieces/WhiteBishop";
+import WhiteHorse from "~/Pieces/WhiteHorse";
+import WhiteKing from "~/Pieces/WhiteKing";
+import WhitePawn from "~/Pieces/WhitePawn";
+import WhiteQueen from "~/Pieces/WhiteQueen";
+import WhiteRook from "~/Pieces/WhiteRook";
 
-import type { Coordinates, Board, Piece, Movement } from "~/types";
+import type { Coordinates, Board, Piece, Movement, MoveTree } from "~/types";
 const ChessBoard = () => {
   const [player, setPlayer] = useState<number | null>(null);
   const [blackInCheck, setBlackInCheck] = useState(false);
   const [whiteInCheck, setWhiteInCheck] = useState(false);
+  const [criticalPath, setCriticalPath] = useState<Array<Coordinates> | null>(
+    null
+  );
   const [gameOver, setGameOver] = useState(false);
   const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(
     null
@@ -61,6 +64,24 @@ const ChessBoard = () => {
         return "g";
       default:
         return "h";
+    }
+  };
+
+  const CHECK_WHITE_KING = () => {
+    const THREATS = BOARD_STATE.current?.threatOnWk as Array<MoveTree>;
+    let blockers = 0;
+    for (const INDEX in THREATS) {
+      const MOVES = THREATS[INDEX].moves;
+      for (const MOVE_INDEX in MOVES) {
+        const MOVE = MOVES[MOVE_INDEX];
+        const MOVE_MAP = MOVE.y * 8 + MOVE.x;
+        if (BOARD_STATE.current?.whitePositions.includes(MOVE_MAP)) {
+          blockers++;
+        }
+      }
+    }
+    if (blockers === 1) {
+      setWhiteInCheck(true);
     }
   };
 
@@ -114,8 +135,8 @@ const ChessBoard = () => {
         blackKing: 4,
         threatOnWk: [],
         threatOnBk: [],
-        whiteAttacks: {},
-        blackAttacks: {},
+        whiteAttacks: [],
+        blackAttacks: [],
         whitePositions: [],
         blackPositions: [],
         whitePieces: [],
@@ -155,6 +176,7 @@ const ChessBoard = () => {
       });
     });
   };
+
   const GENERATE_BLACK_MOVES = () => {
     BOARD_STATE.current?.blackPieces.forEach((pieces) => {
       pieces.forEach((piece) => {
@@ -433,7 +455,7 @@ const ChessBoard = () => {
                 trueMoves.push(coord);
               }
               if (LAST_MOVE.current.color === 0 && LAST_MOVE.current.special) {
-                if (LAST_MOVE.current.endPosition.y === coord.y + 1) {
+                if (LAST_MOVE.current.endPosition.y === coord.y - 1) {
                   if (LAST_MOVE.current.endPosition.x === coord.x) {
                     trueMoves.push(coord);
                   }
@@ -563,13 +585,13 @@ const ChessBoard = () => {
   };
 
   const RECEIVE_WHITE_ALERT = async (piece: Piece) => {
-    console.log("notified white");
     await REFRESH_DOM();
     if (turns % 2 === 1) {
       let moves = GENERATE_WHITE_PIECE_MOVES(piece) as Array<Coordinates>;
       let bubbles = moves.map((move) => {
         return (
           <MoveSpot
+            key={move.x + move.y * 8}
             initialPosition={move}
             thisPiece={piece}
             sendMove={SEND_WHITE_MOVE}
@@ -588,6 +610,7 @@ const ChessBoard = () => {
       let bubbles = moves.map((move) => {
         return (
           <MoveSpot
+            key={move.x + move.y * 8}
             initialPosition={move}
             thisPiece={piece}
             sendMove={SEND_BLACK_MOVE}
