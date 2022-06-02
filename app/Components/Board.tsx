@@ -69,8 +69,8 @@ const ChessBoard = () => {
 
   const CHECK_WHITE_KING = () => {
     const THREATS = BOARD_STATE.current?.threatOnWk as Array<MoveTree>;
-    let blockers = 0;
     for (const INDEX in THREATS) {
+      let blockers = 0;
       const MOVES = THREATS[INDEX].moves;
       for (const MOVE_INDEX in MOVES) {
         const MOVE = MOVES[MOVE_INDEX];
