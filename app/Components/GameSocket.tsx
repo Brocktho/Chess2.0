@@ -1,9 +1,9 @@
-import { useEffect, useReducer } from 'react';
-import updateBoard from '~/BoardActions';
+import { useEffect, useReducer } from "react";
+import SocketUpdates from "~/SocketUpdates";
 
-import ChessBoard from './Board';
-import Chat from './Chat';
-import History from './History';
+import ChessBoard from "./Board";
+import Chat from "./Chat";
+import History from "./History";
 
 import type { Coordinates, InternetBoard } from "~/types";
 import type { Socket } from "socket.io-client";
@@ -17,7 +17,7 @@ const GameSocket = ({
   user: IdentifyUser;
 }) => {
   const [{ board, chat, history, displayPlayer, player }, dispatch] =
-    useReducer(updateBoard, {});
+    useReducer(SocketUpdates, {});
 
   //separating socket functionality out here for the board, won't be doing that for the chat since the chat isn't too complex of logic
 

@@ -1,4 +1,4 @@
-export{}
+export {};
 /* import { useState, useEffect } from 'react';
 import type { Coordinates, InternetPiece } from "~/types";
 
@@ -13,6 +13,8 @@ export const WhiteRook = ({initialPosition, notifyBoard}:{initialPosition:Coordi
     }
     
     const thisRook : InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
         position: position,
         moves: [],
         color: 0,
@@ -52,6 +54,8 @@ export const WhiteQueen = ({
     };
   
     const thisQueen: InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
       position: position,
       moves: [],
       color: 0,
@@ -94,6 +98,8 @@ export const WhiteQueen = ({
     };
   
     const thisPawn: InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
       position: position,
       moves: [],
       color: 0,
@@ -136,6 +142,8 @@ export const WhiteQueen = ({
     };
   
     const thisKing: InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
       position: position,
       moves: [],
       color: 0,
@@ -178,6 +186,8 @@ export const WhiteQueen = ({
     };
   
     let thisHorse: InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
       position: position,
       moves: [],
       color: 0,
@@ -212,6 +222,8 @@ export const WhiteQueen = ({
     }
 
     const thisBishop : InternetPiece = {
+   index: initialPosition.x * initialPosition.y * 8,
+
         position: position,
         moves: [],
         color: 0,

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useReducer } from "react";
 import invariant from "tiny-invariant";
 import BlackBishop from "~/Pieces/BlackBishop";
 import BlackHorse from "~/Pieces/BlackHorse";
@@ -13,21 +13,37 @@ import WhiteKing from "~/Pieces/WhiteKing";
 import WhitePawn from "~/Pieces/WhitePawn";
 import WhiteQueen from "~/Pieces/WhiteQueen";
 import WhiteRook from "~/Pieces/WhiteRook";
+import BoardUpdates from "~/BoardUpdates";
 
 import type { Coordinates, Board, Piece, Movement, MoveTree } from "~/types";
+
 const ChessBoard = () => {
-  const [player, setPlayer] = useState<number | null>(null);
-  const [blackInCheck, setBlackInCheck] = useState(false);
-  const [whiteInCheck, setWhiteInCheck] = useState(false);
-  const [criticalPath, setCriticalPath] = useState<Array<Coordinates> | null>(
-    null
-  );
-  const [gameOver, setGameOver] = useState(false);
-  const [moveBubbles, setMoveBubbles] = useState<Array<JSX.Element> | null>(
-    null
-  );
-  const [turns, setTurns] = useState<number>(1);
-  const [displayPlayer, setDisplayPlayer] = useState<string | null>(null);
+  const [
+    {
+      player,
+      blackInCheck,
+      whiteInCheck,
+      criticalPaths,
+      whiteRefs,
+      blackRefs,
+      gameOver,
+      moveRefs,
+      turn,
+      displayPlayer,
+    },
+    dispatchBoard,
+  ] = useReducer(BoardUpdates, {
+    player: null,
+    blackInCheck: false,
+    whiteInCheck: false,
+    criticalPaths: [],
+    whiteRefs: [],
+    blackRefs: [],
+    gameOver: false,
+    moveRefs: null,
+    turn: 0,
+    displayPlayer: null,
+  });
 
   const BOARD_STATE = useRef<Board | null>(null);
   const KILL_COORD: Coordinates = {
@@ -836,18 +852,18 @@ const ChessBoard = () => {
 
   useEffect(() => {
     //CHECK_KING();
-  }, [turns]);
+  }, [turn]);
 
   return (
     <div className="flex flex-col gap-2">
-      {turns && <h1 className="text-white">{turns}</h1>}
+      {turn && <h1 className="text-white">{turn}</h1>}
       <div
         className="board bg-slate-800"
         onClick={async (e) => await REFRESH_DOM()}
       >
         {BLACK_PIECES}
         {WHITE_PIECES}
-        {moveBubbles}
+        {moveRefs}
       </div>
     </div>
   );

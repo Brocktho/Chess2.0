@@ -4,6 +4,7 @@ export type Coordinates = {
 };
 
 export type Piece = {
+  index: number;
   position: Coordinates;
   moves?: Array<Array<Coordinates>>;
   color: number;
@@ -16,7 +17,13 @@ export type Piece = {
   special?: boolean;
 };
 
-export type State = {
+export type PieceReference = {
+  update: Function;
+  index: number;
+  position: number;
+};
+
+export type SocketState = {
   board?: InternetBoard;
   chat?: Function;
   history?: Function;
@@ -24,7 +31,7 @@ export type State = {
   player?: number;
 };
 
-export type Action =
+export type SocketAction =
   | { type: "loading" }
   | { type: "error" }
   | { type: "foundPlayer"; player: number; display: string }
@@ -32,7 +39,24 @@ export type Action =
   | { type: "castMoves"; bubbles: Array<JSX.Element> }
   | { type: "refresh" };
 
+export type BoardState = {
+  player: number;
+  blackInCheck: boolean;
+  whiteInCheck: boolean;
+  criticalPaths: Array<Array<Coordinates>>;
+  whiteRefs: Array<PieceReference>;
+  blackRefs: Array<PieceReference>;
+  gameOver: boolean;
+  moveRefs?: Array<JSX.Element>;
+  turn: number;
+  displayPlayer: string;
+};
+
+export type BoardAction = { type: "generateBoard" } | { type: "movePiece" };
+
 export type InternetPiece = {
+  index: number;
+
   position: Coordinates;
   moves: Array<Coordinates>;
   moveGenerator: Function;

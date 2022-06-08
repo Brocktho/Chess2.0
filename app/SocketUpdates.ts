@@ -1,6 +1,6 @@
-import type { State, Action } from '~/types';
+import type { SocketState, SocketAction } from '~/types';
 
-const updateBoard = (state:State, action:Action) : State => {
+const SocketUpdates = (state:SocketState, action:SocketAction) : SocketState => {
     switch(action.type){
       case 'loading':
         return {...state};
@@ -27,4 +27,4 @@ const updateBoard = (state:State, action:Action) : State => {
     }
   }
 
-export default updateBoard;
+export default SocketUpdates;

@@ -114,6 +114,8 @@ const WhiteHorse = ({
   };
 
   let thisHorse: Piece = {
+    index: initialPosition.x * initialPosition.y * 8,
+
     position: position,
     moves: [],
     color: 0,

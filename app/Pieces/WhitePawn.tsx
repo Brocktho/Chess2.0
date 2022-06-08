@@ -60,6 +60,7 @@ const WhitePawn = ({
   };
 
   const thisPawn: Piece = {
+    index: initialPosition.x + initialPosition.y * 8,
     position: position,
     moves: [],
     color: 0,

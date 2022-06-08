@@ -1,88 +1,101 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import type { Coordinates, Piece } from "~/types";
 
-const WhiteRook = ({initialPosition, updateBoard, notifyBoard}:{initialPosition:Coordinates, updateBoard:Function, notifyBoard:Function}) => {
-    const [myClass, setMyClass] = useState(`piece wr `);
-    const specialMove = useRef<boolean>(true);
-    const [position, setPosition] = useState(initialPosition);
-    let start = {
-        x: initialPosition.x,
-        y: (initialPosition.y-6),
+const WhiteRook = ({
+  initialPosition,
+  updateBoard,
+  notifyBoard,
+}: {
+  initialPosition: Coordinates;
+  updateBoard: Function;
+  notifyBoard: Function;
+}) => {
+  const [myClass, setMyClass] = useState(`piece wr `);
+  const specialMove = useRef<boolean>(true);
+  const [position, setPosition] = useState(initialPosition);
+  let start = {
+    x: initialPosition.x,
+    y: initialPosition.y - 6,
+  };
+  const getUpdated = (newLocation: Coordinates) => {
+    let newClass = `piece wr square${newLocation.y}${newLocation.x}`;
+    setPosition(newLocation);
+    setMyClass(newClass);
+  };
+  const rookMoves = () => {
+    let px = position.x;
+    let py = position.y;
+    let possibleMoves: Array<Array<Coordinates>> = [];
+    let chunk = [];
+    while (px < 7) {
+      px++;
+      chunk.push({
+        x: px,
+        y: py,
+      });
     }
-    const getUpdated = (newLocation : Coordinates) => {
-        let newClass = `piece wr square${newLocation.y}${newLocation.x}`;
-        setPosition(newLocation);
-        setMyClass(newClass);
+    possibleMoves.push(chunk);
+    chunk = [];
+    px = position.x;
+    while (px > 0) {
+      px--;
+      chunk.push({
+        x: px,
+        y: py,
+      });
     }
-    const rookMoves = () => {
-        let px = position.x;
-        let py = position.y;
-        let possibleMoves : Array<Array<Coordinates>> = [];
-        let chunk = [];
-        while(px < 7){
-            px++;
-            chunk.push({
-                x: px,
-                y: py,
-            })
-        }
-        possibleMoves.push(chunk);
-        chunk = [];
-        px = position.x;
-        while(px > 0){
-            px--
-            chunk.push({
-                x: px,
-                y: py,
-            })
-        }
-        possibleMoves.push(chunk);
-        chunk = [];
-        px = position.x;
-        while(py < 7){
-            py++
-            chunk.push({
-                x: px,
-                y: py,
-            })
-        }
-        possibleMoves.push(chunk);
-        chunk = [];
-        py = position.y;
-        while(py > 0){
-            py--
-            chunk.push({
-                x: px,
-                y: py,
-            })
-        }
-        possibleMoves.push(chunk);
-        chunk = [];
-        return possibleMoves; 
+    possibleMoves.push(chunk);
+    chunk = [];
+    px = position.x;
+    while (py < 7) {
+      py++;
+      chunk.push({
+        x: px,
+        y: py,
+      });
     }
-    const thisRook : Piece = {
-        position: position,
-        moves: [],
-        color: 0,
-        update: getUpdated,
-        generateMoves: rookMoves,
-        arrayLocation: start,
-        initial: "r",
-        alive: true,
-        special: specialMove.current,
+    possibleMoves.push(chunk);
+    chunk = [];
+    py = position.y;
+    while (py > 0) {
+      py--;
+      chunk.push({
+        x: px,
+        y: py,
+      });
     }
+    possibleMoves.push(chunk);
+    chunk = [];
+    return possibleMoves;
+  };
+  const thisRook: Piece = {
+    index: initialPosition.x * initialPosition.y * 8,
 
-    useEffect(() => {
-        setMyClass(`${myClass} square${position.y}${position.x}`);
-        updateBoard(thisRook);
-    },[])
+    position: position,
+    moves: [],
+    color: 0,
+    update: getUpdated,
+    generateMoves: rookMoves,
+    arrayLocation: start,
+    initial: "r",
+    alive: true,
+    special: specialMove.current,
+  };
 
-    return(
-        <button className = {myClass} onClick={ e => { 
-            e.stopPropagation();
-            notifyBoard(thisRook);
-        }}/>
-    )
-}
+  useEffect(() => {
+    setMyClass(`${myClass} square${position.y}${position.x}`);
+    updateBoard(thisRook);
+  }, []);
 
-export default WhiteRook
+  return (
+    <button
+      className={myClass}
+      onClick={(e) => {
+        e.stopPropagation();
+        notifyBoard(thisRook);
+      }}
+    />
+  );
+};
+
+export default WhiteRook;
