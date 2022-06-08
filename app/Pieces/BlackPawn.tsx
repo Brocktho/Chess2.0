@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useEffect, useRef, useState } from 'react';
+import { Coordinates, Notifier, Piece } from '~/types';
 
 const BlackPawn = ({
   initialPosition,
@@ -74,7 +74,7 @@ const BlackPawn = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
-    updateBoard(thisPawn);
+    updateBoard({ type: "registerBlackPiece", piece: thisPawn });
   }, []);
 
   return (

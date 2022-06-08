@@ -1,23 +1,24 @@
-import { useEffect, useRef, useState, useReducer } from "react";
-import invariant from "tiny-invariant";
-import BlackBishop from "~/Pieces/BlackBishop";
-import BlackHorse from "~/Pieces/BlackHorse";
-import BlackKing from "~/Pieces/BlackKing";
-import BlackPawn from "~/Pieces/BlackPawn";
-import BlackQueen from "~/Pieces/BlackQueen";
-import BlackRook from "~/Pieces/BlackRook";
-import MoveSpot from "~/Pieces/MoveSpot";
-import WhiteBishop from "~/Pieces/WhiteBishop";
-import WhiteHorse from "~/Pieces/WhiteHorse";
-import WhiteKing from "~/Pieces/WhiteKing";
-import WhitePawn from "~/Pieces/WhitePawn";
-import WhiteQueen from "~/Pieces/WhiteQueen";
-import WhiteRook from "~/Pieces/WhiteRook";
-import BoardUpdates from "~/BoardUpdates";
+import { useEffect, useReducer, useRef, useState } from 'react';
+import invariant from 'tiny-invariant';
+import BoardUpdates from '~/BoardUpdates';
+import BlackBishop from '~/Pieces/BlackBishop';
+import BlackHorse from '~/Pieces/BlackHorse';
+import BlackKing from '~/Pieces/BlackKing';
+import BlackPawn from '~/Pieces/BlackPawn';
+import BlackQueen from '~/Pieces/BlackQueen';
+import BlackRook from '~/Pieces/BlackRook';
+import MoveSpot from '~/Pieces/MoveSpot';
+import WhiteBishop from '~/Pieces/WhiteBishop';
+import WhiteHorse from '~/Pieces/WhiteHorse';
+import WhiteKing from '~/Pieces/WhiteKing';
+import WhitePawn from '~/Pieces/WhitePawn';
+import WhiteQueen from '~/Pieces/WhiteQueen';
+import WhiteRook from '~/Pieces/WhiteRook';
 
-import type { Coordinates, Board, Piece, Movement, MoveTree } from "~/types";
+import type { Coordinates, Board, Movement, MoveTree } from "~/types";
+import type { Piece } from "../Pieces/types";
 
-const ChessBoard = () => {
+const ChessBoard = ({ passUp }: { passUp: Function }) => {
   const [
     {
       player,
@@ -30,19 +31,27 @@ const ChessBoard = () => {
       moveRefs,
       turn,
       displayPlayer,
+      whitePieces,
+      blackPieces,
+      whiteKing,
+      blackKing,
+      whiteCasts,
+      blackCasts,
     },
     dispatchBoard,
   ] = useReducer(BoardUpdates, {
-    player: null,
+    turn: 0,
+    gameOver: false,
+    criticalPaths: [],
+    blackRefs: [],
+    whiteRefs: [],
     blackInCheck: false,
     whiteInCheck: false,
-    criticalPaths: [],
-    whiteRefs: [],
-    blackRefs: [],
-    gameOver: false,
     moveRefs: null,
-    turn: 0,
-    displayPlayer: null,
+    whiteKing: 60,
+    blackKing: 4,
+    whiteCasts: [],
+    blackCasts: [],
   });
 
   const BOARD_STATE = useRef<Board | null>(null);
@@ -59,7 +68,7 @@ const ChessBoard = () => {
   });
 
   const REFRESH_DOM = async () => {
-    setMoveBubbles(null);
+    dispatchBoard({ type: "refresh" });
   };
 
   const xToString = (x: number) => {
@@ -95,9 +104,6 @@ const ChessBoard = () => {
           blockers++;
         }
       }
-    }
-    if (blockers === 1) {
-      setWhiteInCheck(true);
     }
   };
 
@@ -143,67 +149,8 @@ const ChessBoard = () => {
     });
   };
 
-  const REGISTER_PIECE = (piece: Piece) => {
-    let color = piece.color;
-    if (!BOARD_STATE.current) {
-      let newBoard: Board = {
-        whiteKing: 60,
-        blackKing: 4,
-        threatOnWk: [],
-        threatOnBk: [],
-        whiteAttacks: [],
-        blackAttacks: [],
-        whitePositions: [],
-        blackPositions: [],
-        whitePieces: [],
-        blackPieces: [],
-      };
-      BOARD_STATE.current = newBoard;
-    }
-    if (color === 0) {
-      if (piece.arrayLocation.x === 0) {
-        BOARD_STATE.current.whitePieces.push([]);
-        BOARD_STATE.current.whitePieces[piece.arrayLocation.y].push(piece);
-      } else {
-        BOARD_STATE.current.whitePieces[piece.arrayLocation.y].push(piece);
-      }
-      BOARD_STATE.current.whitePositions.push(
-        piece.position.y * 8 + piece.position.x
-      );
-    }
-    if (color === 1) {
-      if (piece.arrayLocation.x === 0) {
-        BOARD_STATE.current.blackPieces.push([]);
-        BOARD_STATE.current.blackPieces[piece.arrayLocation.y].push(piece);
-      } else {
-        BOARD_STATE.current.blackPieces[piece.arrayLocation.y].push(piece);
-      }
-      BOARD_STATE.current.blackPositions.push(
-        piece.position.y * 8 + piece.position.x
-      );
-    }
-  };
-
-  const GENERATE_WHITE_MOVES = () => {
-    BOARD_STATE.current?.whitePieces.forEach((pieces) => {
-      pieces.forEach((piece) => {
-        let moves: Array<Array<Coordinates>> = piece.generateMoves();
-        piece.moves = moves;
-      });
-    });
-  };
-
-  const GENERATE_BLACK_MOVES = () => {
-    BOARD_STATE.current?.blackPieces.forEach((pieces) => {
-      pieces.forEach((piece) => {
-        let moves: Array<Array<Coordinates>> = piece.generateMoves();
-        piece.moves = moves;
-      });
-    });
-  };
-
   const GENERATE_WHITE_PIECE_MOVES = (piece: Piece) => {
-    if (piece.color === 0 && turns % 2 === 1) {
+    if (piece.color === 0 && turn % 2 === 1) {
       if (piece.initial === "k") {
         let possibleMoves = piece.moves as Array<Array<Coordinates>>;
         let trueMoves: Array<Coordinates> = [];
@@ -513,7 +460,7 @@ const ChessBoard = () => {
   ) => {
     invariant(BOARD_STATE.current, "Board State must be initialized");
     let coordMap = newLocation.y * 8 + newLocation.x;
-    if (turns % 2 === 1) {
+    if (turn % 2 === 1) {
       let pieceMap = callingPiece.position.y * 8 + callingPiece.position.x;
       const REMOVE = BOARD_STATE.current.whitePositions.indexOf(pieceMap);
       BOARD_STATE.current.whitePositions.splice(REMOVE, 1);
@@ -549,7 +496,7 @@ const ChessBoard = () => {
         BOARD_STATE.current.whiteKing = coordMap;
       }
       callingPiece.update(newLocation);
-      setTurns(turns + 1);
+      dispatchBoard({ type: "movePiece" });
     }
   };
 
@@ -559,7 +506,7 @@ const ChessBoard = () => {
   ) => {
     invariant(BOARD_STATE.current, "Board State must be initialized");
     let coordMap = newLocation.y * 8 + newLocation.x;
-    if (turns % 2 === 0) {
+    if (turn % 2 === 0) {
       let pieceMap = callingPiece.position.y * 8 + callingPiece.position.x;
       const REMOVE = BOARD_STATE.current.blackPositions.indexOf(pieceMap);
       BOARD_STATE.current.blackPositions.splice(REMOVE, 1);
@@ -596,13 +543,13 @@ const ChessBoard = () => {
         BOARD_STATE.current.blackKing = coordMap;
       }
       callingPiece.update(newLocation);
-      setTurns(turns + 1);
+      dispatchBoard({ type: "movePiece" });
     }
   };
 
   const RECEIVE_WHITE_ALERT = async (piece: Piece) => {
     await REFRESH_DOM();
-    if (turns % 2 === 1) {
+    if (turn % 2 === 1) {
       let moves = GENERATE_WHITE_PIECE_MOVES(piece) as Array<Coordinates>;
       let bubbles = moves.map((move) => {
         return (
@@ -614,14 +561,14 @@ const ChessBoard = () => {
           />
         );
       });
-      setMoveBubbles(bubbles);
+      dispatchBoard({ type: "castMoves", bubbles: bubbles });
     }
     return;
   };
 
   const RECEIVE_BLACK_ALERT = async (piece: Piece) => {
     await REFRESH_DOM();
-    if (turns % 2 === 0) {
+    if (turn % 2 === 0) {
       let moves = GENERATE_BLACK_PIECE_MOVES(piece) as Array<Coordinates>;
       let bubbles = moves.map((move) => {
         return (
@@ -633,7 +580,7 @@ const ChessBoard = () => {
           />
         );
       });
-      setMoveBubbles(bubbles);
+      dispatchBoard({ type: "castMoves", bubbles: bubbles });
     }
   };
 
@@ -648,7 +595,7 @@ const ChessBoard = () => {
           return (
             <WhitePawn
               initialPosition={thisPosition}
-              updateBoard={REGISTER_PIECE}
+              updateBoard={dispatchBoard}
               notifyBoard={RECEIVE_WHITE_ALERT}
               key={`WhitePawn${x}`}
             />
@@ -659,7 +606,7 @@ const ChessBoard = () => {
               return (
                 <WhiteRook
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteRook${x}`}
                 />
@@ -668,7 +615,7 @@ const ChessBoard = () => {
               return (
                 <WhiteHorse
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteHorse${x}`}
                 />
@@ -677,7 +624,7 @@ const ChessBoard = () => {
               return (
                 <WhiteBishop
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteBishop${x}`}
                 />
@@ -686,7 +633,7 @@ const ChessBoard = () => {
               return (
                 <WhiteQueen
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteQueen${x}`}
                 />
@@ -695,7 +642,7 @@ const ChessBoard = () => {
               return (
                 <WhiteKing
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteKing${x}`}
                 />
@@ -704,7 +651,7 @@ const ChessBoard = () => {
               return (
                 <WhiteBishop
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteBishop${x}`}
                 />
@@ -713,7 +660,7 @@ const ChessBoard = () => {
               return (
                 <WhiteHorse
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteHorse${x}`}
                 />
@@ -722,7 +669,7 @@ const ChessBoard = () => {
               return (
                 <WhiteRook
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_WHITE_ALERT}
                   key={`WhiteRook${x}`}
                 />
@@ -743,7 +690,7 @@ const ChessBoard = () => {
           return (
             <BlackPawn
               initialPosition={thisPosition}
-              updateBoard={REGISTER_PIECE}
+              updateBoard={dispatchBoard}
               notifyBoard={RECEIVE_BLACK_ALERT}
               key={`BlackPawn${x}`}
             />
@@ -754,7 +701,7 @@ const ChessBoard = () => {
               return (
                 <BlackRook
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackRook${x}`}
                 />
@@ -763,7 +710,7 @@ const ChessBoard = () => {
               return (
                 <BlackHorse
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackHorse${x}`}
                 />
@@ -772,7 +719,7 @@ const ChessBoard = () => {
               return (
                 <BlackBishop
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackBishop${x}`}
                 />
@@ -781,7 +728,7 @@ const ChessBoard = () => {
               return (
                 <BlackQueen
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackQueen${x}`}
                 />
@@ -790,7 +737,7 @@ const ChessBoard = () => {
               return (
                 <BlackKing
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackKing${x}`}
                 />
@@ -799,7 +746,7 @@ const ChessBoard = () => {
               return (
                 <BlackBishop
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackBishop${x}`}
                 />
@@ -808,7 +755,7 @@ const ChessBoard = () => {
               return (
                 <BlackHorse
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackHorse${x}`}
                 />
@@ -817,7 +764,7 @@ const ChessBoard = () => {
               return (
                 <BlackRook
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackRook${x}`}
                 />
@@ -826,7 +773,7 @@ const ChessBoard = () => {
               return (
                 <BlackPawn
                   initialPosition={thisPosition}
-                  updateBoard={REGISTER_PIECE}
+                  updateBoard={dispatchBoard}
                   notifyBoard={RECEIVE_BLACK_ALERT}
                   key={`BlackPawn${x}`}
                 />
@@ -836,7 +783,7 @@ const ChessBoard = () => {
           return (
             <BlackPawn
               initialPosition={thisPosition}
-              updateBoard={REGISTER_PIECE}
+              updateBoard={dispatchBoard}
               notifyBoard={RECEIVE_BLACK_ALERT}
               key={`BlackPawn${x}`}
             />
@@ -844,11 +791,6 @@ const ChessBoard = () => {
       }
     });
   });
-
-  useEffect(() => {
-    GENERATE_WHITE_MOVES();
-    GENERATE_BLACK_MOVES();
-  }, []);
 
   useEffect(() => {
     //CHECK_KING();

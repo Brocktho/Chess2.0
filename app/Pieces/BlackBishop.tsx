@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useEffect, useRef, useState } from 'react';
+import { Coordinates, Notifier, Piece } from '~/types';
 
 const BlackBishop = ({
   initialPosition,
@@ -91,7 +91,7 @@ const BlackBishop = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
-    updateBoard(thisBishop);
+    updateBoard({ type: "registerBlackPiece", piece: thisBishop });
   }, []);
 
   return (

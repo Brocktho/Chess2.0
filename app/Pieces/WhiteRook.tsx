@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from 'react';
+
 import type { Coordinates, Piece } from "~/types";
 
 const WhiteRook = ({
@@ -84,7 +85,7 @@ const WhiteRook = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.y}${position.x}`);
-    updateBoard(thisRook);
+    updateBoard({ type: "registerWhitePiece", piece: thisRook });
   }, []);
 
   return (

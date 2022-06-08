@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from 'react';
+
 import type { Coordinates, Piece } from "~/types";
 
 const WhitePawn = ({
@@ -75,7 +76,7 @@ const WhitePawn = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.y}${position.x}`);
-    updateBoard(thisPawn);
+    updateBoard({ type: "registerWhitePiece", piece: thisPawn });
   }, []);
 
   return (

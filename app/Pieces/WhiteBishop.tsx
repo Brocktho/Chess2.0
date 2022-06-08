@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Coordinates, Piece } from "~/types";
+import { useEffect, useState } from 'react';
+import { Coordinates, Piece } from '~/types';
 
 const WhiteBishop = ({
   initialPosition,
@@ -92,7 +92,7 @@ const WhiteBishop = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.y}${position.x}`);
-    updateBoard(thisBishop);
+    updateBoard({ type: "registerWhitePiece", piece: thisBishop });
   }, []);
 
   return (

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Coordinates, Piece, Notifier } from "~/types";
+import { useEffect, useRef, useState } from 'react';
+import { Coordinates, Notifier, Piece } from '~/types';
 
 const BlackKing = ({
   initialPosition,
@@ -138,7 +138,7 @@ const BlackKing = ({
 
   useEffect(() => {
     setMyClass(`${myClass} square${position.current.y}${position.current.x}`);
-    updateBoard(thisKing);
+    updateBoard({ type: "registerBlackPiece", piece: thisKing });
   }, []);
 
   return (

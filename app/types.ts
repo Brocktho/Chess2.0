@@ -1,26 +1,8 @@
+import type { Piece, PieceRef } from "./Pieces/types";
+
 export type Coordinates = {
   x: number;
   y: number;
-};
-
-export type Piece = {
-  index: number;
-  position: Coordinates;
-  moves?: Array<Array<Coordinates>>;
-  color: number;
-  update: Function;
-  generateMoves: Function;
-  generateAttacks?: Function;
-  arrayLocation: Coordinates;
-  initial: string;
-  alive: boolean;
-  special?: boolean;
-};
-
-export type PieceReference = {
-  update: Function;
-  index: number;
-  position: number;
 };
 
 export type SocketState = {
@@ -31,32 +13,45 @@ export type SocketState = {
   player?: number;
 };
 
+export type MoveCast = {
+  index: number;
+  cast: Array<Array<Coordinates>>;
+};
+
 export type SocketAction =
   | { type: "loading" }
   | { type: "error" }
   | { type: "foundPlayer"; player: number; display: string }
-  | { type: "loadBoard"; boardDirective: Array<String> }
-  | { type: "castMoves"; bubbles: Array<JSX.Element> }
-  | { type: "refresh" };
+  | { type: "loadBoard"; boardDirective: Array<String> };
 
 export type BoardState = {
-  player: number;
-  blackInCheck: boolean;
-  whiteInCheck: boolean;
-  criticalPaths: Array<Array<Coordinates>>;
-  whiteRefs: Array<PieceReference>;
-  blackRefs: Array<PieceReference>;
-  gameOver: boolean;
-  moveRefs?: Array<JSX.Element>;
+  player?: number;
+  blackInCheck?: boolean;
+  whiteInCheck?: boolean;
+  criticalPaths?: Array<Array<Coordinates>>;
+  whiteRefs: Array<PieceRef>;
+  blackRefs: Array<PieceRef>;
+  gameOver?: boolean;
+  moveRefs: Array<JSX.Element> | null;
   turn: number;
-  displayPlayer: string;
+  displayPlayer?: string;
+  whitePieces?: Array<JSX.Element>;
+  blackPieces?: Array<JSX.Element>;
+  whiteKing: number;
+  blackKing: number;
+  whiteCasts: Array<MoveCast>;
+  blackCasts: Array<MoveCast>;
 };
 
-export type BoardAction = { type: "generateBoard" } | { type: "movePiece" };
+export type BoardAction =
+  | { type: "registerWhitePiece"; piece: Piece }
+  | { type: "registerBlackPiece"; piece: Piece }
+  | { type: "movePiece" }
+  | { type: "refresh" }
+  | { type: "castMoves"; bubbles: Array<JSX.Element> };
 
 export type InternetPiece = {
   index: number;
-
   position: Coordinates;
   moves: Array<Coordinates>;
   moveGenerator: Function;
